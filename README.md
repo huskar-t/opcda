@@ -1,5 +1,7 @@
 # Go OPC DA Client
 
+[![OPC_DA_WIN](https://github.com/huskar-t/opcda/actions/workflows/test.yaml/badge.svg)](https://github.com/huskar-t/opcda/actions/workflows/test.yaml)
+
 English | [简体中文](README-CN.md)
 
 This is an OPC DA client written in Go language, allowing you to communicate with OPC DA servers and retrieve data. OPC DA is a commonly used industrial automation communication protocol that enables data exchange between devices and control systems.

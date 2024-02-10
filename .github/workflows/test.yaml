@@ -23,21 +23,21 @@ jobs:
           go-version: ${{ matrix.go }}
           cache-dependency-path: go.sum
 
-      - name: install da simulator
-        run: choco install grayboxsimulator
-
       - name: install core components
         run: choco install opc-components
+
+      - name: install da simulator
+        run: choco install grayboxsimulator
 
       - name: Test OPCDA
         env:
           GOARCH: ${{ matrix.arch }}
         run: go test -v --count=1 -coverprofile='coverage.txt' -covermode=atomic ./...
 
-#      - name: Upload coverage to Codecov
-#        if: ${{ matrix.go }} == '1.20'
-#        uses: codecov/codecov-action@v4-beta
-#        with:
-#          files: ./coverage.txt
-#        env:
-#          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.go }} == '1.20'
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          files: ./coverage.txt
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
