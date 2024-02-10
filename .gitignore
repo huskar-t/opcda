@@ -20,3 +20,6 @@ go.work
 # editor
 .idea/
 .vscode/
+
+# Coverage files
+/coverage.txt

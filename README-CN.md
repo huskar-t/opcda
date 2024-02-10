@@ -1,5 +1,8 @@
 # Go OPC DA 客户端
 
+[![OPC_DA_WIN](https://github.com/huskar-t/opcda/actions/workflows/test.yaml/badge.svg)](https://github.com/huskar-t/opcda/actions/workflows/test.yaml)
+[![codecov](https://codecov.io/gh/huskar-t/opcda/graph/badge.svg?token=12QCJ69ZXQ)](https://codecov.io/gh/huskar-t/opcda)
+
 [English](README.md) | 简体中文
 
 这是一个用 Go 语言编写的 OPC DA 客户端，它允许你与 OPC DA 服务器进行通信并获取数据。OPC DA

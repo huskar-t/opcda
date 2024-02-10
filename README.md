@@ -1,6 +1,7 @@
 # Go OPC DA Client
 
 [![OPC_DA_WIN](https://github.com/huskar-t/opcda/actions/workflows/test.yaml/badge.svg)](https://github.com/huskar-t/opcda/actions/workflows/test.yaml)
+[![codecov](https://codecov.io/gh/huskar-t/opcda/graph/badge.svg?token=12QCJ69ZXQ)](https://codecov.io/gh/huskar-t/opcda)
 
 English | [简体中文](README-CN.md)
 
