@@ -1,0 +1,43 @@
+name: OPC_DA_WIN
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        go: [ '1.20' , 'stable' ]
+        arch: [ '386', 'amd64' ]
+
+    name: opc_test ${{ matrix.go }} - ${{ matrix.arch }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go }}
+          cache-dependency-path: go.sum
+
+      - name: install da simulator
+        run: choco install grayboxsimulator
+
+      - name: install core components
+        run: choco install opc-components
+
+      - name: Test OPCDA
+        env:
+          GOARCH: ${{ matrix.arch }}
+        run: go test -v --count=1 -coverprofile='coverage.txt' -covermode=atomic ./...
+
+#      - name: Upload coverage to Codecov
+#        if: ${{ matrix.go }} == '1.20'
+#        uses: codecov/codecov-action@v4-beta
+#        with:
+#          files: ./coverage.txt
+#        env:
+#          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
