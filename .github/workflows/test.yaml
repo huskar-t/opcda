@@ -27,7 +27,10 @@ jobs:
         run: choco install opc-components
 
       - name: install da simulator
-        run: choco install grayboxsimulator
+        run: |
+          Start-BitsTransfer -Source https://www.matrikonopc.com/portal/downloads/product_software/MatrikonOPCSimulation.exe
+          Start-Process -Wait -FilePath MatrikonOPCSimulation.exe -ArgumentList '/S' -PassThru
+          sc.exe start "MatrikonOPC Server for Simulation and Testing"
 
       - name: Test OPCDA
         env:

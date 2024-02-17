@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const TestProgID = "Graybox.Simulator.1"
+const TestProgID = "Matrikon.OPC.Simulation.1"
 const TestHost = "localhost"
-const TestBoolItem = "numeric.random.bool"
-const TestFloatItem = "numeric.random.float"
-const TestWriteItem = "enum.number"
+const TestBoolItem = "Bucket Brigade.Boolean"
+const TestFloatItem = "Bucket Brigade.Real4"
+const TestWriteItem = "Bucket Brigade.Int4"
 
 func TestMain(m *testing.M) {
 	Initialize()
@@ -33,7 +33,7 @@ func TestOpcServer_GetLocaleID(t *testing.T) {
 	defer server.Disconnect()
 	localID, err := server.GetLocaleID()
 	assert.NoError(t, err)
-	assert.Equal(t, uint32(0), localID)
+	assert.Equal(t, uint32(0x800), localID)
 }
 
 func TestOpcServer_GetStartTime(t *testing.T) {
@@ -245,7 +245,7 @@ func TestOPCGroup_AddItems(t *testing.T) {
 	assert.NotNil(t, group)
 	assert.Equal(t, "test", group.groupName)
 	items := group.OPCItems()
-	itemList, errors, err := items.AddItems([]string{TestBoolItem, "Random.PsBool2"})
+	itemList, errors, err := items.AddItems([]string{TestBoolItem, "x.x"})
 	assert.NoError(t, err)
 	hasError := false
 

@@ -57,7 +57,7 @@ func main() {
 		for {
 			select {
 			case data := <-ch:
-				log.Printf("data change received, transaction id: %d, group handle: %d, masterQuality: %d, masterError: %v\n", data.TransID, data.GroupServerHandle, data.MasterQuality, data.MasterErr)
+				log.Printf("data change received, transaction id: %d, group handle: %d, masterQuality: %d, masterError: %v\n", data.TransID, data.GroupHandle, data.MasterQuality, data.MasterErr)
 				for i := 0; i < len(data.ItemClientHandles); i++ {
 					tag := ""
 					for _, item := range itemList {

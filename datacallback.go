@@ -87,7 +87,7 @@ func DataRelease(this unsafe.Pointer) uintptr {
 
 type CDataChangeCallBackData struct {
 	TransID           uint32
-	GroupServerHandle uint32
+	GroupHandle       uint32
 	MasterQuality     int32
 	MasterErr         int32
 	ItemClientHandles []uint32
@@ -115,7 +115,7 @@ func DataOnDataChange(this unsafe.Pointer, dwTransid uint32, hGroup uint32, hrMa
 	}
 	cb := &CDataChangeCallBackData{
 		TransID:           dwTransid,
-		GroupServerHandle: hGroup,
+		GroupHandle:       hGroup,
 		MasterQuality:     hrMasterquality,
 		MasterErr:         hrMastererror,
 		ItemClientHandles: clientHandles,
@@ -130,7 +130,7 @@ func DataOnDataChange(this unsafe.Pointer, dwTransid uint32, hGroup uint32, hrMa
 
 type CReadCompleteCallBackData struct {
 	TransID           uint32
-	GroupServerHandle uint32
+	GroupHandle       uint32
 	MasterQuality     int32
 	MasterErr         int32
 	ItemClientHandles []uint32
@@ -158,7 +158,7 @@ func DataOnReadComplete(this unsafe.Pointer, dwTransid uint32, hGroup uint32, hr
 	}
 	cb := &CReadCompleteCallBackData{
 		TransID:           dwTransid,
-		GroupServerHandle: hGroup,
+		GroupHandle:       hGroup,
 		MasterQuality:     hrMasterquality,
 		MasterErr:         hrMastererror,
 		ItemClientHandles: clientHandles,
@@ -173,7 +173,7 @@ func DataOnReadComplete(this unsafe.Pointer, dwTransid uint32, hGroup uint32, hr
 
 type CWriteCompleteCallBackData struct {
 	TransID           uint32
-	GroupServerHandle uint32
+	GroupHandle       uint32
 	MasterErr         int32
 	ItemClientHandles []uint32
 	Errors            []int32
@@ -189,7 +189,7 @@ func DataOnWriteComplete(this unsafe.Pointer, dwTransid uint32, hGroup uint32, h
 	}
 	cb := &CWriteCompleteCallBackData{
 		TransID:           dwTransid,
-		GroupServerHandle: hGroup,
+		GroupHandle:       hGroup,
 		MasterErr:         hrMastererr,
 		ItemClientHandles: clientHandles,
 		Errors:            errors,
@@ -199,15 +199,15 @@ func DataOnWriteComplete(this unsafe.Pointer, dwTransid uint32, hGroup uint32, h
 }
 
 type CCancelCompleteCallBackData struct {
-	TransID           uint32
-	GroupServerHandle uint32
+	TransID     uint32
+	GroupHandle uint32
 }
 
 func DataOnCancelComplete(this unsafe.Pointer, dwTransid uint32, hGroup uint32) uintptr {
 	er := (*DataEventReceiver)(this)
 	cb := &CCancelCompleteCallBackData{
-		TransID:           dwTransid,
-		GroupServerHandle: hGroup,
+		TransID:     dwTransid,
+		GroupHandle: hGroup,
 	}
 	er.cancelCompleteReceiver <- cb
 	return com.S_OK

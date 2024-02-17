@@ -24,21 +24,32 @@ func TestOPCBrowser(t *testing.T) {
 	browse(t, browser)
 	err = browser.MoveUp()
 	assert.NoError(t, err)
+	err = browser.MoveUp()
+	assert.NoError(t, err)
 	browse(t, browser)
 	browser.MoveToRoot()
 	browse(t, browser)
-	err = browser.MoveTo([]string{"textual"})
-	assert.NoError(t, err)
+	err = browser.MoveTo([]string{"Simulation Items", "Bucket Brigade"})
 	assert.NoError(t, err)
 	err = browser.ShowLeafs(false)
 	assert.NoError(t, err)
 	count := browser.GetCount()
-	assert.Equal(t, 4, count)
+	assert.Equal(t, 14, count)
 	expectLeafs := []string{
-		"color",
-		"number",
-		"random",
-		"weekday",
+		"ArrayOfReal8",
+		"ArrayOfString",
+		"Boolean",
+		"Int1",
+		"Int2",
+		"Int4",
+		"Money",
+		"Real4",
+		"Real8",
+		"String",
+		"Time",
+		"UInt1",
+		"UInt2",
+		"UInt4",
 	}
 
 	for i := 0; i < count; i++ {
@@ -47,7 +58,7 @@ func TestOPCBrowser(t *testing.T) {
 		assert.Equal(t, expectLeafs[i], nextName)
 		itermID, err := browser.GetItemID(nextName)
 		assert.NoError(t, err)
-		assert.Equal(t, fmt.Sprintf("textual.%s", nextName), itermID)
+		assert.Equal(t, fmt.Sprintf("Bucket Brigade.%s", nextName), itermID)
 	}
 	browser.SetFilter("")
 	filter := browser.GetFilter()
@@ -63,7 +74,7 @@ func TestOPCBrowser(t *testing.T) {
 	assert.Error(t, err)
 	position, err := browser.GetCurrentPosition()
 	assert.NoError(t, err)
-	assert.Equal(t, "textual", position)
+	assert.Equal(t, "Bucket Brigade", position)
 	organization, err := browser.GetOrganization()
 	assert.NoError(t, err)
 	assert.Equal(t, OPC_NS_HIERARCHIAL, organization)
@@ -77,24 +88,53 @@ func browse(t *testing.T, browser *OPCBrowser) {
 	err := browser.ShowBranches()
 	assert.NoError(t, err)
 	count := browser.GetCount()
-	assert.Equal(t, 6, count)
-	expectBranch := []string{"options", "numeric", "textual", "time", "enum", "storage"}
+	assert.Equal(t, 2, count)
+	expectBranch := []string{"Simulation Items", "Configured Aliases"}
 	for i := 0; i < count; i++ {
 		nextName, err := browser.Item(i)
 		assert.NoError(t, err)
 		assert.Equal(t, expectBranch[i], nextName)
 	}
-	err = browser.MoveDown("textual")
+	err = browser.MoveDown("Simulation Items")
 	assert.NoError(t, err)
+	err = browser.ShowBranches()
+	count = browser.GetCount()
+	assert.Equal(t, 8, count)
+	expectBranch = []string{
+		"Bucket Brigade",
+		"Random",
+		"Read Error",
+		"Saw-toothed Waves",
+		"Square Waves",
+		"Triangle Waves",
+		"Write Error",
+		"Write Only",
+	}
+	for i := 0; i < count; i++ {
+		nextName, err := browser.Item(i)
+		assert.NoError(t, err)
+		assert.Equal(t, expectBranch[i], nextName)
+	}
+	err = browser.MoveDown("Bucket Brigade")
 	err = browser.ShowLeafs(false)
 	assert.NoError(t, err)
 	count = browser.GetCount()
-	assert.Equal(t, 4, count)
+	assert.Equal(t, 14, count)
 	expectLeafs := []string{
-		"color",
-		"number",
-		"random",
-		"weekday",
+		"ArrayOfReal8",
+		"ArrayOfString",
+		"Boolean",
+		"Int1",
+		"Int2",
+		"Int4",
+		"Money",
+		"Real4",
+		"Real8",
+		"String",
+		"Time",
+		"UInt1",
+		"UInt2",
+		"UInt4",
 	}
 
 	for i := 0; i < count; i++ {
@@ -103,7 +143,7 @@ func browse(t *testing.T, browser *OPCBrowser) {
 		assert.Equal(t, expectLeafs[i], nextName)
 		itermID, err := browser.GetItemID(nextName)
 		assert.NoError(t, err)
-		assert.Equal(t, fmt.Sprintf("textual.%s", nextName), itermID)
+		assert.Equal(t, fmt.Sprintf("Bucket Brigade.%s", nextName), itermID)
 	}
 	err = browser.ShowBranches()
 	assert.NoError(t, err)

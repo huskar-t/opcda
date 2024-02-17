@@ -259,7 +259,7 @@ func (g *OPCGroup) Release() {
 
 type DataChangeCallBackData struct {
 	TransID           uint32
-	GroupServerHandle uint32
+	GroupHandle       uint32
 	MasterQuality     int32
 	MasterErr         error
 	ItemClientHandles []uint32
@@ -311,7 +311,7 @@ func (g *OPCGroup) RegisterCancelComplete(ch chan *CancelCompleteCallBackData) e
 
 type ReadCompleteCallBackData struct {
 	TransID           uint32
-	GroupServerHandle uint32
+	GroupHandle       uint32
 	MasterQuality     int32
 	MasterErr         error
 	ItemClientHandles []uint32
@@ -323,15 +323,15 @@ type ReadCompleteCallBackData struct {
 
 type WriteCompleteCallBackData struct {
 	TransID           uint32
-	GroupServerHandle uint32
+	GroupHandle       uint32
 	MasterErr         error
 	ItemClientHandles []uint32
 	Errors            []error
 }
 
 type CancelCompleteCallBackData struct {
-	TransID           uint32
-	GroupServerHandle uint32
+	TransID     uint32
+	GroupHandle uint32
 }
 
 func (g *OPCGroup) advice() (err error) {
@@ -393,7 +393,7 @@ func (g *OPCGroup) loop(ctx context.Context, dataChangeCB chan *CDataChangeCallB
 			}
 			data := &DataChangeCallBackData{
 				TransID:           cb.TransID,
-				GroupServerHandle: cb.GroupServerHandle,
+				GroupHandle:       cb.GroupHandle,
 				MasterQuality:     cb.MasterQuality,
 				MasterErr:         masterError,
 				ItemClientHandles: cb.ItemClientHandles,
@@ -421,7 +421,7 @@ func (g *OPCGroup) loop(ctx context.Context, dataChangeCB chan *CDataChangeCallB
 			}
 			data := &ReadCompleteCallBackData{
 				TransID:           cb.TransID,
-				GroupServerHandle: cb.GroupServerHandle,
+				GroupHandle:       cb.GroupHandle,
 				MasterQuality:     cb.MasterQuality,
 				MasterErr:         masterError,
 				ItemClientHandles: cb.ItemClientHandles,
@@ -449,7 +449,7 @@ func (g *OPCGroup) loop(ctx context.Context, dataChangeCB chan *CDataChangeCallB
 			}
 			data := &WriteCompleteCallBackData{
 				TransID:           cb.TransID,
-				GroupServerHandle: cb.GroupServerHandle,
+				GroupHandle:       cb.GroupHandle,
 				MasterErr:         masterError,
 				ItemClientHandles: cb.ItemClientHandles,
 				Errors:            itemErrors,
@@ -462,8 +462,8 @@ func (g *OPCGroup) loop(ctx context.Context, dataChangeCB chan *CDataChangeCallB
 			}
 		case cb := <-cancelCB:
 			data := &CancelCompleteCallBackData{
-				TransID:           cb.TransID,
-				GroupServerHandle: cb.GroupServerHandle,
+				TransID:     cb.TransID,
+				GroupHandle: cb.GroupHandle,
 			}
 			for _, backData := range g.cancelCompleteList {
 				backData <- data
