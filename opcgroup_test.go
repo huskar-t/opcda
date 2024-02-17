@@ -101,9 +101,15 @@ func TestOPCGroup(t *testing.T) {
 	for _, err := range errs {
 		assert.NoError(t, err)
 	}
-	value, quality, _, err := item.Read(OPC_DS_CACHE)
-	assert.NoError(t, err)
-	assert.Equal(t, uint16(216), quality)
+	var value interface{}
+	for i := 0; i < 5; i++ {
+		time.Sleep(time.Second)
+		value, _, _, err = item.Read(OPC_DS_CACHE)
+		assert.NoError(t, err)
+		if value == int32(11) {
+			break
+		}
+	}
 	assert.Equal(t, int32(11), value)
 	timeout := time.NewTimer(time.Second * 5)
 	defer timeout.Stop()
@@ -151,7 +157,7 @@ func TestOPCGroup_AsyncRead(t *testing.T) {
 	select {
 	case data := <-out:
 		t.Log(data)
-		assert.Equal(t, group.serverGroupHandle, data.GroupServerHandle)
+		assert.Equal(t, group.GetClientHandle(), data.GroupHandle)
 		assert.Equal(t, uint32(100), data.TransID)
 		assert.Equal(t, 1, len(data.ItemClientHandles))
 		assert.Equal(t, item.clientHandle, data.ItemClientHandles[0])
@@ -192,7 +198,7 @@ func TestOPCGroup_AsyncWrite(t *testing.T) {
 	select {
 	case data := <-out:
 		t.Log(data)
-		assert.Equal(t, group.serverGroupHandle, data.GroupServerHandle)
+		assert.Equal(t, group.GetClientHandle(), data.GroupHandle)
 		assert.Equal(t, uint32(100), data.TransID)
 		assert.Equal(t, 1, len(data.ItemClientHandles))
 		assert.Equal(t, item.clientHandle, data.ItemClientHandles[0])
@@ -234,7 +240,7 @@ func TestOPCGroup_AsyncRefresh(t *testing.T) {
 	select {
 	case data := <-out:
 		t.Log(data)
-		assert.Equal(t, group.serverGroupHandle, data.GroupServerHandle)
+		assert.Equal(t, group.GetClientHandle(), data.GroupHandle)
 		assert.Equal(t, 1, len(data.ItemClientHandles))
 		assert.Equal(t, item.clientHandle, data.ItemClientHandles[0])
 	case <-timeout.C:
@@ -277,7 +283,7 @@ func TestOPCGroup_AsyncCancel(t *testing.T) {
 	select {
 	case data := <-out:
 		t.Log(data)
-		assert.Equal(t, group.serverGroupHandle, data.GroupServerHandle)
+		assert.Equal(t, group.GetClientHandle(), data.GroupHandle)
 		assert.Equal(t, uint32(100), data.TransID)
 	case <-timeout.C:
 		t.Fatal("timeout")

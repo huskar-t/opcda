@@ -89,7 +89,7 @@ func main() {
 						}
 					}
 				}
-				fmt.Printf("write complete received\ntransaction id: %d\ngroup handle: %d\nmasterError: %v\nitems: [%s]\n", data.TransID, data.GroupServerHandle, data.MasterErr, strings.Join(tagList, ","))
+				fmt.Printf("write complete received\ntransaction id: %d\ngroup handle: %d\nmasterError: %v\nitems: [%s]\n", data.TransID, data.GroupHandle, data.MasterErr, strings.Join(tagList, ","))
 				for i, err := range data.Errors {
 					if err != nil {
 						log.Printf("async write item %s failed: %s\n", tagList[i], err)

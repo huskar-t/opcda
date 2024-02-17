@@ -43,8 +43,14 @@ func TestOPCItem(t *testing.T) {
 	assert.Equal(t, ts, item.GetTimestamp())
 	err = item.Write(int32(12))
 	assert.NoError(t, err)
-	v, _, _, err = item.Read(OPC_DS_CACHE)
-	assert.NoError(t, err)
+	for i := 0; i < 5; i++ {
+		time.Sleep(time.Second)
+		v, _, _, err = item.Read(OPC_DS_CACHE)
+		assert.NoError(t, err)
+		if v == int32(12) {
+			break
+		}
+	}
 	assert.Equal(t, int32(12), v)
 	vt := item.GetCanonicalDataType()
 	t.Log(vt)
