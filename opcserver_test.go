@@ -5,10 +5,13 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/sys/windows/svc"
+	"golang.org/x/sys/windows/svc/mgr"
 )
 
 const TestProgID = "Matrikon.OPC.Simulation.1"
 const TestHost = "localhost"
+const TestServiceName = "MatrikonOPC Server for Simulation and Testing"
 const TestBoolItem = "Bucket Brigade.Boolean"
 const TestFloatItem = "Bucket Brigade.Real4"
 const TestWriteItem = "Bucket Brigade.Int4"
@@ -213,26 +216,36 @@ func TestOpcServer_GetItemProperties(t *testing.T) {
 }
 
 // LookupItemIDs The simulator does not support
-//func TestOpcServer_LookupItemIDs(t *testing.T) {
-//	server, err := Connect(TestProgID, TestHost)
-//	assert.NoError(t, err)
-//	defer server.Disconnect()
-//	ppPropertyIDs, ppDescriptions, ppvtDataTypes, err := server.QueryAvailableProperties(TestBoolItem)
-//	assert.NoError(t, err)
-//	assert.Greater(t, len(ppPropertyIDs), 0)
-//	assert.Greater(t, len(ppDescriptions), 0)
-//	assert.Greater(t, len(ppvtDataTypes), 0)
-//	t.Log(ppPropertyIDs, ppDescriptions, ppvtDataTypes)
-//	itemIDs, errors, err := server.LookupItemIDs(TestBoolItem, ppPropertyIDs)
-//	assert.NoError(t, err)
-//	assert.Greater(t, len(itemIDs), 0)
-//	assert.Greater(t, len(errors), 0)
-//	assert.Equal(t, len(itemIDs), len(errors))
-//	for i := 0; i < len(itemIDs); i++ {
-//		assert.NoError(t, errors[i])
-//	}
-//	t.Log(itemIDs)
-//}
+func TestOpcServer_LookupItemIDs(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	ppPropertyIDs, ppDescriptions, ppvtDataTypes, err := server.QueryAvailableProperties(TestBoolItem)
+	assert.NoError(t, err)
+	assert.Equal(t, len(ppPropertyIDs), 14)
+	assert.Equal(t, len(ppDescriptions), 14)
+	assert.Equal(t, len(ppvtDataTypes), 14)
+	//t.Log(ppPropertyIDs, ppDescriptions, ppvtDataTypes)
+	itemIDs, errors, err := server.LookupItemIDs(TestBoolItem, ppPropertyIDs)
+	assert.NoError(t, err)
+	assert.Equal(t, len(itemIDs), 14)
+	assert.Equal(t, len(errors), 14)
+	assert.Equal(t, len(itemIDs), len(errors))
+	for i := 0; i < 9; i++ {
+		//[0xc0040203]: The server does not recognise the passed property ID or the string was not recognized as an area name.
+		assert.Error(t, errors[i])
+	}
+	expected := []string{
+		"Triangle Waves.Boolean",
+		"Square Waves.Boolean",
+		"Saw-toothed Waves.Boolean",
+		"Random.Boolean",
+		"Bucket Brigade.Boolean",
+	}
+	for i := 9; i < 14; i++ {
+		assert.Equal(t, expected[i-9], itemIDs[i])
+	}
+}
 
 func TestOPCGroup_AddItems(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
@@ -290,15 +303,53 @@ func TestOPCGroup_AddItems_Success(t *testing.T) {
 }
 
 // Can be tested manually, but cannot be tested automatically
-//func TestOPCServer_RegisterServerShutDown(t *testing.T) {
-//	server, err := Connect(TestProgID, TestHost)
-//	assert.NoError(t, err)
-//	defer server.Disconnect()
-//	ch := make(chan string, 1)
-//	err = server.RegisterServerShutDown(ch)
-//	assert.NoError(t, err)
-//	select {
-//	case reason := <-ch:
-//		t.Log(reason)
-//	}
-//}
+func TestOPCServer_RegisterServerShutDown(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	ch := make(chan string, 1)
+	err = server.RegisterServerShutDown(ch)
+	assert.NoError(t, err)
+	done := make(chan struct{})
+	go func() {
+		manager, err := mgr.Connect()
+		if err != nil {
+			t.Fatalf("Failed to connect to service manager: %v", err)
+		}
+		defer manager.Disconnect()
+		serviceObj, err := manager.OpenService(TestServiceName)
+		if err != nil {
+			t.Fatalf("Failed to open service %s: %v", TestServiceName, err)
+		}
+		defer serviceObj.Close()
+		defer func() {
+			for i := 0; i < 10; i++ {
+				time.Sleep(time.Second)
+				status, err := serviceObj.Query()
+				if err != nil {
+					t.Fatalf("Failed to query service %s: %v", TestServiceName, err)
+				}
+				t.Log(status.State)
+				if status.State == svc.Stopped {
+					err = serviceObj.Start()
+					if err != nil {
+						t.Fatalf("Failed to start service %s: %v", TestServiceName, err)
+					}
+					break
+				}
+			}
+			close(done)
+		}()
+		_, err = serviceObj.Control(svc.Stop)
+		if err != nil {
+			t.Fatalf("Failed to stop service %s: %v", TestServiceName, err)
+		}
+
+		t.Logf("Service %s stopped", TestServiceName)
+	}()
+	select {
+	case reason := <-ch:
+		t.Log(reason)
+	}
+	<-done
+}

@@ -10,20 +10,6 @@ import (
 )
 
 func (v *VARIANT) Clear() error {
-	//if v.IsArray() {
-	//	safeArray := (*SafeArray)(unsafe.Pointer(uintptr(v.Val)))
-	//	totalElements, _ := safeArray.TotalElements(0)
-	//	vt, _ := safeArray.GetType()
-	//	switch vt {
-	//	case uint16(VT_BSTR):
-	//
-	//		var element *uint16
-	//		for i := int32(0); i < totalElements; i++ {
-	//			safeArrayGetElement(safeArray, i, unsafe.Pointer(&element))
-	//			SysFreeString(element)
-	//		}
-	//	}
-	//}
 	return VariantClear(v)
 }
 
@@ -77,8 +63,6 @@ func (v *VARIANT) Value() interface{} {
 			panic(err)
 		}
 		return date
-	//case VT_CY:
-	//	return float64(v.Val) / 10000
 	case VT_BOOL:
 		return (v.Val & 0xffff) != 0
 	}
@@ -265,8 +249,7 @@ func (vw *VariantWrapper) SetValue(val interface{}) error {
 		for i, value := range values {
 			date, err := TimeToVariantDate(value)
 			if err != nil {
-				safeArrayDestroy(array)
-				return err
+				panic(err)
 			}
 			safeArrayPutElement(array, int64(i), uintptr(unsafe.Pointer(&date)))
 		}
@@ -291,6 +274,7 @@ func (vw *VariantWrapper) SetValue(val interface{}) error {
 				safeArrayPutElement(array, int64(i), uintptr(unsafe.Pointer(&(f))))
 			}
 		}
+		v.Val = int64(uintptr(unsafe.Pointer(array)))
 	default:
 		return fmt.Errorf("unsupported type: %T", val)
 	}

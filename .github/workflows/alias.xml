@@ -1,0 +1,81 @@
+<Matrikon.OPC.Simulation>
+    <CSimRootDevLink name="" description="Sim Server Root" />
+    <PSTAliasGroup>
+        <PSTAlias name="ArrayOfBool" itemPath="" type="3" dataType="8203">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfByte" itemPath="" type="3" dataType="8209" registerInitValue="">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfChar" itemPath="" type="3" dataType="8208">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfDate" itemPath="" type="3" dataType="8199">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfReal4" itemPath="" type="3" dataType="8196">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfReal8" itemPath="" type="3" dataType="8197">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfShort" itemPath="" type="3" dataType="8194">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfString" itemPath="" type="3" dataType="8200">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfUlong" itemPath="" type="3" dataType="8211">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfUshort" itemPath="" type="3" dataType="8210">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfLong" itemPath="" type="3" dataType="8195">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfInt" itemPath="" type="3" dataType="8214">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfUint" itemPath="" type="3" dataType="8215">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfInt64" itemPath="" type="3" dataType="8212">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="ArrayOfUint64" itemPath="" type="3" dataType="8213">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="Int" itemPath="" type="3" dataType="22">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="Uint" itemPath="" type="3" dataType="23">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="Int64" itemPath="" type="3" dataType="20">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="Uint64" itemPath="" type="3" dataType="21">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+    </PSTAliasGroup>
+</Matrikon.OPC.Simulation>

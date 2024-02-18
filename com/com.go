@@ -17,7 +17,6 @@ var (
 	procVariantTimeToSystemTime = modOleaut32.NewProc("VariantTimeToSystemTime")
 	procSystemTimeToVariantTime = modOleaut32.NewProc("SystemTimeToVariantTime")
 	procSafeArrayGetVarType     = modOleaut32.NewProc("SafeArrayGetVartype")
-	procSafeArrayDestroy        = modOleaut32.NewProc("SafeArrayDestroy")
 	procSafeArrayGetLBound      = modOleaut32.NewProc("SafeArrayGetLBound")
 	procSafeArrayGetUBound      = modOleaut32.NewProc("SafeArrayGetUBound")
 	procSafeArrayGetElement     = modOleaut32.NewProc("SafeArrayGetElement")
@@ -31,7 +30,6 @@ func CoTaskMemFree(pv unsafe.Pointer) {
 	r0, _, _ := syscall.SyscallN(procCoTaskMemFree.Addr(), uintptr(pv))
 	if int32(r0) < 0 {
 		panic(syscall.Errno(r0))
-		//panic("CoTaskMemFree failed")
 	}
 }
 
@@ -93,14 +91,6 @@ func VariantClear(pvarg *VARIANT) (err error) {
 
 func safeArrayGetVarType(safeArray *SafeArray) (varType uint16, err error) {
 	r0, _, _ := syscall.SyscallN(procSafeArrayGetVarType.Addr(), uintptr(unsafe.Pointer(safeArray)), uintptr(unsafe.Pointer(&varType)))
-	if r0 != 0 {
-		err = syscall.Errno(r0)
-	}
-	return
-}
-
-func safeArrayDestroy(safeArray *SafeArray) (err error) {
-	r0, _, _ := syscall.SyscallN(procSafeArrayDestroy.Addr(), uintptr(unsafe.Pointer(safeArray)))
 	if r0 != 0 {
 		err = syscall.Errno(r0)
 	}
