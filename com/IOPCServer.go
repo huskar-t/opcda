@@ -79,48 +79,6 @@ func BoolToBOOL(b bool) int32 {
 	return 0
 }
 
-func (v *IOPCServer) GetErrorString(
-	dwError int32,
-	dwLocale uint32,
-) (ppString string, err error) {
-	var pString *uint16
-	r0, _, _ := syscall.SyscallN(
-		v.Vtbl().GetErrorString,
-		uintptr(unsafe.Pointer(v.IUnknown)),
-		uintptr(dwError),
-		uintptr(dwLocale),
-		uintptr(unsafe.Pointer(&pString)),
-	)
-	if r0 != 0 {
-		err = syscall.Errno(r0)
-		return
-	}
-	ppString = windows.UTF16PtrToString(pString)
-	return
-}
-
-func (v *IOPCServer) GetGroupByName(szName string, riid *windows.GUID) (ppUnk *IUnknown, err error) {
-	var pUnk *IUnknown
-	var pName *uint16
-	pName, err = syscall.UTF16PtrFromString(szName)
-	if err != nil {
-		return
-	}
-	r0, _, _ := syscall.SyscallN(
-		v.Vtbl().GetGroupByName,
-		uintptr(unsafe.Pointer(v.IUnknown)),
-		uintptr(unsafe.Pointer(pName)),
-		uintptr(unsafe.Pointer(riid)),
-		uintptr(unsafe.Pointer(&pUnk)),
-	)
-	if r0 != 0 {
-		err = syscall.Errno(r0)
-		return
-	}
-	ppUnk = pUnk
-	return
-}
-
 type OPCServerState uint32
 
 type OPCSERVERSTATUS struct {
@@ -198,29 +156,5 @@ func (v *IOPCServer) RemoveGroup(hServerGroup uint32, bForce bool) (err error) {
 		err = syscall.Errno(r0)
 		return
 	}
-	return
-}
-
-type tagOPCENUMSCOPE uint32
-
-//        virtual HRESULT STDMETHODCALLTYPE CreateGroupEnumerator(
-//            /* [in] */ OPCENUMSCOPE dwScope,
-//            /* [in] */ REFIID riid,
-//            /* [iid_is][out] */ LPUNKNOWN * ppUnk) = 0;
-
-func (v *IOPCServer) CreateGroupEnumerator(dwScope tagOPCENUMSCOPE, riid *windows.GUID) (ppUnk *IUnknown, err error) {
-	var pUnk *IUnknown
-	r0, _, _ := syscall.SyscallN(
-		v.Vtbl().CreateGroupEnumerator,
-		uintptr(unsafe.Pointer(v.IUnknown)),
-		uintptr(dwScope),
-		uintptr(unsafe.Pointer(riid)),
-		uintptr(unsafe.Pointer(&pUnk)),
-	)
-	if r0 != 0 {
-		err = syscall.Errno(r0)
-		return
-	}
-	ppUnk = pUnk
 	return
 }

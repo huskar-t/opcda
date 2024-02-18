@@ -2,6 +2,7 @@ package com
 
 import (
 	"fmt"
+	"time"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -21,91 +22,158 @@ type SafeArrayBound struct {
 	LowerBound int32
 }
 
-func (s *SafeArray) ToValueArray() (values []interface{}, err error) {
+func (s *SafeArray) ToValueArray() (interface{}, error) {
+	var err error
 	totalElements, _ := s.TotalElements(0)
-	values = make([]interface{}, totalElements)
 	vt, _ := safeArrayGetVarType(s)
 
-	for i := int32(0); i < totalElements; i++ {
-		switch VT(vt) {
-		case VT_BOOL:
-			var v bool
+	switch VT(vt) {
+	case VT_BOOL:
+		values := make([]bool, totalElements)
+		for i := int32(0); i < totalElements; i++ {
+			var v int16
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
 				return nil, err
 			}
-			values[i] = v
-		case VT_I1:
+			values[i] = (v & 0xff) != 0
+		}
+		return values, nil
+	case VT_I1:
+		values := make([]int8, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var v int8
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
 				return nil, err
 			}
 			values[i] = v
-		case VT_I2:
+		}
+		return values, nil
+	case VT_I2:
+		values := make([]int16, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var v int16
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
 				return nil, err
 			}
 			values[i] = v
-		case VT_I4:
+		}
+		return values, nil
+	case VT_I4:
+		values := make([]int32, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var v int32
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
 				return nil, err
 			}
 			values[i] = v
-		case VT_I8:
+		}
+		return values, nil
+	case VT_I8:
+		values := make([]int64, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var v int64
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
 				return nil, err
 			}
 			values[i] = v
-		case VT_UI1:
+		}
+		return values, nil
+	case VT_UI1:
+		values := make([]uint8, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var v uint8
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
 				return nil, err
 			}
 			values[i] = v
-		case VT_UI2:
+		}
+		return values, nil
+	case VT_UI2:
+		values := make([]uint16, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var v uint16
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
 				return nil, err
 			}
 			values[i] = v
-		case VT_UI4:
+		}
+		return values, nil
+	case VT_UI4:
+		values := make([]uint32, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var v uint32
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
 				return nil, err
 			}
 			values[i] = v
-		case VT_UI8:
+		}
+		return values, nil
+	case VT_UI8:
+		values := make([]uint64, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var v uint64
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
 				return nil, err
 			}
 			values[i] = v
-		case VT_R4:
+		}
+		return values, nil
+	case VT_INT:
+		values := make([]int, totalElements)
+		for i := int32(0); i < totalElements; i++ {
+			var v int
+			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
+			if err != nil {
+				return nil, err
+			}
+			values[i] = v
+		}
+		return values, nil
+	case VT_UINT:
+		values := make([]uint, totalElements)
+		for i := int32(0); i < totalElements; i++ {
+			var v uint
+			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
+			if err != nil {
+				return nil, err
+			}
+			values[i] = v
+		}
+		return values, nil
+	case VT_R4:
+		values := make([]float32, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var v float32
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
 				return nil, err
 			}
 			values[i] = v
-		case VT_R8:
+		}
+		return values, nil
+	case VT_R8:
+		values := make([]float64, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var v float64
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
 				return nil, err
 			}
 			values[i] = v
-		case VT_BSTR:
+		}
+		return values, nil
+	case VT_BSTR:
+		values := make([]string, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var element *uint16
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&element))
 			if err != nil {
@@ -113,7 +181,11 @@ func (s *SafeArray) ToValueArray() (values []interface{}, err error) {
 			}
 			values[i] = windows.UTF16PtrToString(element)
 			SysFreeString(element)
-		case VT_DATE:
+		}
+		return values, nil
+	case VT_DATE:
+		values := make([]time.Time, totalElements)
+		for i := int32(0); i < totalElements; i++ {
 			var v uint64
 			err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
 			if err != nil {
@@ -124,19 +196,11 @@ func (s *SafeArray) ToValueArray() (values []interface{}, err error) {
 				return nil, err
 			}
 			values[i] = date
-		//case VT_CY:
-		//	var v int64
-		//	err = safeArrayGetElement(s, i, unsafe.Pointer(&v))
-		//	if err != nil {
-		//		return nil, err
-		//	}
-		//	values[i] = float64(v) / 10000
-		default:
-			return nil, fmt.Errorf("unknown value type %x", VT(vt))
 		}
+		return values, nil
+	default:
+		return nil, fmt.Errorf("unknown value type %x", VT(vt))
 	}
-
-	return
 }
 
 func (s *SafeArray) TotalElements(index uint32) (totalElements int32, err error) {
@@ -160,12 +224,4 @@ func (s *SafeArray) TotalElements(index uint32) (totalElements int32, err error)
 
 	totalElements = UpperBounds - LowerBounds + 1
 	return
-}
-
-func (s *SafeArray) GetType() (varType uint16, err error) {
-	return safeArrayGetVarType(s)
-}
-
-func (s *SafeArray) Release() error {
-	return safeArrayDestroy(s)
 }

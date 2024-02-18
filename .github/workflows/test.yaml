@@ -26,10 +26,23 @@ jobs:
       - name: install core components
         run: choco install opc-components
 
+      - name: Get absolute directory path
+        id: get_path
+        run: |
+          $absPath = "${{ github.workspace }}\.github\workflows\alias.xml"
+          Write-Host "Absolute directory path: $absPath"
+          echo "::set-output name=abs_path::$absPath"
+
       - name: install da simulator
         run: |
-          Start-BitsTransfer -Source https://www.matrikonopc.com/portal/downloads/product_software/MatrikonOPCSimulation.exe
+          Start-BitsTransfer -Source https://github.com/huskar-t/opcdatest/releases/download/simulation/MatrikonOPCSimulation.exe
           Start-Process -Wait -FilePath MatrikonOPCSimulation.exe -ArgumentList '/S' -PassThru
+
+      - name: start da simulator
+        run: |
+          $absPath = "${{ steps.get_path.outputs.abs_path }}"
+          reg add "HKLM\SOFTWARE\WOW6432Node\Classes\CLSID\{F8582CF4-88FB-11D0-B850-00C0F0104305}\Options" /v DefaultConfig /t REG_SZ /d "$absPath" /f
+          reg add "HKLM\SOFTWARE\WOW6432Node\Classes\CLSID\{F8582CF4-88FB-11D0-B850-00C0F0104305}\Options" /v LoadOnStartup /t REG_SZ /d "1" /f
           sc.exe start "MatrikonOPC Server for Simulation and Testing"
 
       - name: Test OPCDA
@@ -42,5 +55,6 @@ jobs:
         uses: codecov/codecov-action@v4.0.1
         with:
           files: ./coverage.txt
+          exclude: "example/*"
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
