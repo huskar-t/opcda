@@ -35,7 +35,7 @@ jobs:
 
       - name: install da simulator
         run: |
-          Start-BitsTransfer -Source https://www.matrikonopc.com/portal/downloads/product_software/MatrikonOPCSimulation.exe
+          Start-BitsTransfer -Source https://github.com/huskar-t/opcdatest/releases/download/simulation/MatrikonOPCSimulation.exe
           Start-Process -Wait -FilePath MatrikonOPCSimulation.exe -ArgumentList '/S' -PassThru
 
       - name: start da simulator
