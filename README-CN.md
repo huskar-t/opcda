@@ -2,6 +2,8 @@
 
 [![OPC_DA_WIN](https://github.com/huskar-t/opcda/actions/workflows/test.yaml/badge.svg)](https://github.com/huskar-t/opcda/actions/workflows/test.yaml)
 [![codecov](https://codecov.io/gh/huskar-t/opcda/graph/badge.svg?token=12QCJ69ZXQ)](https://codecov.io/gh/huskar-t/opcda)
+[![Go Report Card](https://goreportcard.com/badge/github.com/huskar-t/opcda)](https://goreportcard.com/report/github.com/huskar-t/opcda)
+[![Go Reference](https://pkg.go.dev/badge/github.com/huskar-t/opcda.svg)](https://pkg.go.dev/github.com/huskar-t/opcda)
 
 [English](README.md) | 简体中文
 
