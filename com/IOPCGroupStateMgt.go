@@ -75,11 +75,10 @@ func (sl *IOPCGroupStateMgt) SetState(requestedUpdateRate *uint32, pActive *int3
 	return
 }
 
-func (sl *IOPCGroupStateMgt) SetName(szName string) (err error) {
-	var pName *uint16
-	pName, err = syscall.UTF16PtrFromString(szName)
+func (sl *IOPCGroupStateMgt) SetName(szName string) error {
+	pName, err := syscall.UTF16PtrFromString(szName)
 	if err != nil {
-		return
+		return err
 	}
 	r0, _, _ := syscall.SyscallN(
 		sl.Vtbl().SetName,
@@ -87,8 +86,7 @@ func (sl *IOPCGroupStateMgt) SetName(szName string) (err error) {
 		uintptr(unsafe.Pointer(pName)),
 	)
 	if r0 != 0 {
-		err = syscall.Errno(r0)
-		return
+		return syscall.Errno(r0)
 	}
-	return
+	return nil
 }

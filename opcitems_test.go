@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOPCItems(t *testing.T) {
+func TestOPCItems_RequestedDataType(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
 	defer server.Disconnect()
@@ -24,15 +24,52 @@ func TestOPCItems(t *testing.T) {
 	items.SetDefaultRequestedDataType(com.VT_I4)
 	assert.Equal(t, com.VT_I4, items.GetDefaultRequestedDataType())
 	items.SetDefaultRequestedDataType(com.VT_EMPTY)
+}
+
+func TestOPCItems_DefaultAccessPath(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	items := group.OPCItems()
 	accessPath := items.GetDefaultAccessPath()
 	assert.Equal(t, "", accessPath)
 	items.SetDefaultAccessPath("test")
 	assert.Equal(t, "test", items.GetDefaultAccessPath())
 	items.SetDefaultAccessPath("")
+}
+
+func TestOPCItems_DefaultActive(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	items := group.OPCItems()
 	items.SetDefaultActive(false)
 	assert.Equal(t, false, items.GetDefaultActive())
 	items.SetDefaultActive(true)
 	assert.Equal(t, true, items.GetDefaultActive())
+}
+
+func TestOPCItems_AddItems(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	items := group.OPCItems()
+
 	boolItem, err := items.AddItem(TestBoolItem)
 	assert.NoError(t, err)
 	assert.NotNil(t, boolItem)
@@ -84,6 +121,19 @@ func TestOPCItems(t *testing.T) {
 	assert.Equal(t, 2, items.GetCount())
 	items.Remove([]uint32{itemList[0].GetServerHandle(), itemList[1].GetServerHandle()})
 	assert.Equal(t, 0, items.GetCount())
+}
+
+func TestOPCItems_Validate(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	items := group.OPCItems()
+
 	errs, err := items.Validate([]string{TestBoolItem, TestFloatItem, TestWriteItem}, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(errs))
@@ -108,6 +158,19 @@ func TestOPCItems(t *testing.T) {
 	for _, e := range errs {
 		assert.NoError(t, e)
 	}
+}
+
+func TestOPCItems_SetActive(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	items := group.OPCItems()
+
 	opcItems, errs, err := items.AddItems([]string{TestBoolItem, TestFloatItem, TestWriteItem})
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(opcItems))
@@ -123,6 +186,26 @@ func TestOPCItems(t *testing.T) {
 	for _, item := range opcItems {
 		assert.False(t, item.GetIsActive())
 	}
+}
+
+func TestOPCItems_SetClientHandles(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	items := group.OPCItems()
+
+	opcItems, errs, err := items.AddItems([]string{TestBoolItem, TestFloatItem, TestWriteItem})
+	assert.NoError(t, err)
+	assert.Equal(t, 3, len(opcItems))
+	assert.Equal(t, 3, len(errs))
+	for _, e := range errs {
+		assert.NoError(t, e)
+	}
 	errs = items.SetClientHandles([]uint32{opcItems[0].GetServerHandle(), opcItems[1].GetServerHandle(), opcItems[2].GetServerHandle()}, []uint32{100, 200, 300})
 	assert.Equal(t, 3, len(errs))
 	for _, e := range errs {
@@ -130,6 +213,26 @@ func TestOPCItems(t *testing.T) {
 	}
 	for i, item := range opcItems {
 		assert.Equal(t, uint32(i+1)*100, item.GetClientHandle())
+	}
+}
+
+func TestOPCItems_SetDataTypes(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	items := group.OPCItems()
+
+	opcItems, errs, err := items.AddItems([]string{TestBoolItem, TestFloatItem, TestWriteItem})
+	assert.NoError(t, err)
+	assert.Equal(t, 3, len(opcItems))
+	assert.Equal(t, 3, len(errs))
+	for _, e := range errs {
+		assert.NoError(t, e)
 	}
 	errs = items.SetDataTypes([]uint32{opcItems[0].GetServerHandle(), opcItems[1].GetServerHandle(), opcItems[2].GetServerHandle()}, []com.VT{com.VT_I4, com.VT_I4, com.VT_I4})
 	assert.Equal(t, 3, len(errs))

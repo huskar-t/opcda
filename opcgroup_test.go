@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOPCGroup(t *testing.T) {
+func TestOPCGroup_SetName(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
 	defer server.Disconnect()
@@ -21,18 +21,54 @@ func TestOPCGroup(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "test2", group.GetName())
 	assert.Equal(t, groups, group.GetParent())
+}
+
+func TestOPCGroup_IsActive(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	assert.Equal(t, "test", group.GetName())
 	assert.Equal(t, true, group.GetIsActive())
 	err = group.SetIsActive(false)
 	assert.NoError(t, err)
 	assert.Equal(t, false, group.GetIsActive())
 	err = group.SetIsActive(true)
 	assert.NoError(t, err)
+}
+
+func TestOPCGroup_Handle(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	assert.Equal(t, "test", group.GetName())
 	assert.Equal(t, uint32(1), group.GetClientHandle())
 	err = group.SetClientHandle(2)
 	assert.NoError(t, err)
 	assert.Equal(t, uint32(2), group.GetClientHandle())
 	serverHandle := group.GetServerHandle()
 	assert.Greater(t, serverHandle, uint32(0))
+}
+
+func TestOPCGroup_LocaleID(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	assert.Equal(t, "test", group.GetName())
 	localID, err := group.GetLocaleID()
 	assert.NoError(t, err)
 	assert.Greater(t, localID, uint32(0))
@@ -41,6 +77,18 @@ func TestOPCGroup(t *testing.T) {
 	localID, err = group.GetLocaleID()
 	assert.NoError(t, err)
 	assert.Equal(t, uint32(1024), localID)
+}
+
+func TestOPCGroup_TimeBias(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	assert.Equal(t, "test", group.GetName())
 	timeBias, err := group.GetTimeBias()
 	assert.NoError(t, err)
 	assert.Equal(t, int32(0), timeBias)
@@ -49,6 +97,18 @@ func TestOPCGroup(t *testing.T) {
 	timeBias, err = group.GetTimeBias()
 	assert.NoError(t, err)
 	assert.Equal(t, int32(1024), timeBias)
+}
+
+func TestOPCGroup_Deadband(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	assert.Equal(t, "test", group.GetName())
 	deadband, err := group.GetDeadband()
 	assert.NoError(t, err)
 	assert.Equal(t, float32(0), deadband)
@@ -57,6 +117,18 @@ func TestOPCGroup(t *testing.T) {
 	deadband, err = group.GetDeadband()
 	assert.NoError(t, err)
 	assert.Equal(t, float32(0), deadband)
+}
+
+func TestOPCGroup_UpdateRate(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	assert.Equal(t, "test", group.GetName())
 	updateRate, err := group.GetUpdateRate()
 	assert.NoError(t, err)
 	assert.Equal(t, uint32(1000), updateRate)
@@ -65,6 +137,40 @@ func TestOPCGroup(t *testing.T) {
 	updateRate, err = group.GetUpdateRate()
 	assert.NoError(t, err)
 	assert.Equal(t, uint32(5000), updateRate)
+}
+
+func TestOPCGroup_Items(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	assert.Equal(t, "test", group.GetName())
+
+	items := group.items
+	assert.NotNil(t, items)
+	items2 := group.OPCItems()
+	assert.Equal(t, items, items2)
+	item, err := items.AddItem(TestWriteItem)
+	assert.NoError(t, err)
+	err = item.SetIsActive(true)
+	assert.NoError(t, err)
+}
+
+func TestOPCGroup_SyncRead(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test_group_read")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	assert.Equal(t, "test_group_read", group.GetName())
+
 	items := group.items
 	assert.NotNil(t, items)
 	items2 := group.OPCItems()
@@ -93,6 +199,42 @@ func TestOPCGroup(t *testing.T) {
 		break
 	}
 	assert.True(t, match)
+}
+
+func TestOPCGroup_ReadError(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test_group_read_error")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	items := group.items
+	assert.NotNil(t, items)
+	items2 := group.OPCItems()
+	assert.Equal(t, items, items2)
+	item, err := items.AddItem(TestReadErrorItem)
+	assert.NoError(t, err)
+	_, err = group.SyncRead(OPC_DS_CACHE, []uint32{item.GetServerHandle()})
+	assert.Error(t, err)
+}
+
+func TestOPCGroup_SyncWrite(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test_group_write")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	assert.Equal(t, "test_group_write", group.GetName())
+
+	items := group.items
+	assert.NotNil(t, items)
+	item, err := items.AddItem(TestWriteItem)
+	assert.NoError(t, err)
 	ch := make(chan *DataChangeCallBackData, 1)
 	err = group.RegisterDataChange(ch)
 	assert.NoError(t, err)
@@ -125,13 +267,36 @@ func TestOPCGroup(t *testing.T) {
 	}
 }
 
+func TestOPCGroup_WriteError(t *testing.T) {
+	server, err := Connect(TestProgID, TestHost)
+	assert.NoError(t, err)
+	defer server.Disconnect()
+	groups := server.GetOPCGroups()
+	assert.NotNil(t, groups)
+	group, err := groups.Add("test_group_write_error")
+	assert.NoError(t, err)
+	assert.NotNil(t, group)
+	items := group.items
+	assert.NotNil(t, items)
+	item, err := items.AddItem(TestWriteErrorItem)
+	assert.NoError(t, err)
+	ch := make(chan *DataChangeCallBackData, 1)
+	err = group.RegisterDataChange(ch)
+	assert.NoError(t, err)
+	errs, err := group.SyncWrite([]uint32{item.GetServerHandle()}, []interface{}{int32(11)})
+	assert.NoError(t, err)
+	for _, err := range errs {
+		assert.Error(t, err)
+	}
+}
+
 func TestOPCGroup_AsyncRead(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
 	defer server.Disconnect()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
-	group, err := groups.Add("test")
+	group, err := groups.Add("test_group_async_read")
 	assert.NoError(t, err)
 	assert.NotNil(t, group)
 	ch := make(chan *ReadCompleteCallBackData, 1)
@@ -172,7 +337,7 @@ func TestOPCGroup_AsyncWrite(t *testing.T) {
 	defer server.Disconnect()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
-	group, err := groups.Add("test")
+	group, err := groups.Add("test_group_async_write")
 	assert.NoError(t, err)
 	assert.NotNil(t, group)
 	ch := make(chan *WriteCompleteCallBackData, 1)
@@ -215,7 +380,7 @@ func TestOPCGroup_AsyncRefresh(t *testing.T) {
 	defer server.Disconnect()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
-	group, err := groups.Add("test")
+	group, err := groups.Add("test_group_async_refresh")
 	assert.NoError(t, err)
 	assert.NotNil(t, group)
 	ch := make(chan *DataChangeCallBackData, 1)
@@ -254,7 +419,7 @@ func TestOPCGroup_AsyncCancel(t *testing.T) {
 	defer server.Disconnect()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
-	group, err := groups.Add("test")
+	group, err := groups.Add("test_group_async_cancel")
 	assert.NoError(t, err)
 	assert.NotNil(t, group)
 	ch := make(chan *CancelCompleteCallBackData, 1)
@@ -276,7 +441,6 @@ func TestOPCGroup_AsyncCancel(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(errs))
 		assert.Nil(t, errs[0])
-		//t.Log(cancelID)
 		group.AsyncCancel(cancelID)
 	}
 	timeout := time.NewTimer(time.Second * 5)

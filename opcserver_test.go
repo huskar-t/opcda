@@ -15,6 +15,8 @@ const TestServiceName = "MatrikonOPC Server for Simulation and Testing"
 const TestBoolItem = "Bucket Brigade.Boolean"
 const TestFloatItem = "Bucket Brigade.Real4"
 const TestWriteItem = "Bucket Brigade.Int4"
+const TestWriteErrorItem = "Write Error.Int4"
+const TestReadErrorItem = "Write Only.Int4"
 
 func TestMain(m *testing.M) {
 	Initialize()
