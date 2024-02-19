@@ -24,7 +24,9 @@ jobs:
           cache-dependency-path: go.sum
 
       - name: install core components
-        run: choco install opc-components
+        run: |
+          Start-BitsTransfer -Source https://github.com/huskar-t/opcdatest/releases/download/simulation/OPC.Core.Components.Redistributable.x64.3.00.108.msi
+          msiexec /norestart /i "OPC.Core.Components.Redistributable.x64.3.00.108.msi"
 
       - name: Get absolute directory path
         id: get_path

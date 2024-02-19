@@ -84,6 +84,7 @@ func NewVariant(val interface{}) (*VariantWrapper, error) {
 	return v, nil
 }
 
+//gocyclo:ignore
 func (vw *VariantWrapper) SetValue(val interface{}) error {
 	v := vw.Variant
 	switch val.(type) {
