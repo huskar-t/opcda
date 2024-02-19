@@ -64,25 +64,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("register read complete callback failed: %s\n", err)
 	}
-	finish := make(chan struct{})
+	finishChan := make(chan struct{})
 	go func() {
-		for {
-			select {
-			case data := <-ch:
-				log.Printf("read complete received, transaction id: %d, group handle: %d, masterQuality: %d, masterError: %v\n", data.TransID, data.GroupHandle, data.MasterQuality, data.MasterErr)
-				tag := ""
-				for i := 0; i < len(data.ItemClientHandles); i++ {
-					for _, item := range itemList {
-						if item.GetClientHandle() == data.ItemClientHandles[i] {
-							tag = item.GetItemID()
-						}
-					}
-					log.Printf("%s:\t%s\t%d\t%v\n", tag, data.TimeStamps[i], data.Qualities[i], data.Values[i])
-				}
-				close(finish)
-				return
-			}
-		}
+		loop(itemList, ch, finishChan)
 	}()
 	transID := uint32(1)
 	_, errs, err = group.AsyncRead(serverHandles, transID)
@@ -95,6 +79,26 @@ func main() {
 		}
 	}
 	select {
-	case <-finish:
+	case <-finishChan:
+	}
+}
+
+func loop(itemList []*opcda.OPCItem, ch chan *opcda.ReadCompleteCallBackData, finishChan chan struct{}) {
+	for {
+		select {
+		case data := <-ch:
+			log.Printf("read complete received, transaction id: %d, group handle: %d, masterQuality: %d, masterError: %v\n", data.TransID, data.GroupHandle, data.MasterQuality, data.MasterErr)
+			tag := ""
+			for i := 0; i < len(data.ItemClientHandles); i++ {
+				for _, item := range itemList {
+					if item.GetClientHandle() == data.ItemClientHandles[i] {
+						tag = item.GetItemID()
+					}
+				}
+				log.Printf("%s:\t%s\t%d\t%v\n", tag, data.TimeStamps[i], data.Qualities[i], data.Values[i])
+			}
+			close(finishChan)
+			return
+		}
 	}
 }

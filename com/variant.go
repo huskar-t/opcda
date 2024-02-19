@@ -17,6 +17,7 @@ func (v *VARIANT) IsArray() bool {
 	return v.VT&VT_ARRAY == VT_ARRAY
 }
 
+//gocyclo:ignore
 func (v *VARIANT) Value() interface{} {
 	if v.VT == VT_EMPTY || v.VT == VT_NULL {
 		return nil

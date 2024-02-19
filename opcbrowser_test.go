@@ -98,6 +98,7 @@ func browse(t *testing.T, browser *OPCBrowser) {
 	err = browser.MoveDown("Simulation Items")
 	assert.NoError(t, err)
 	err = browser.ShowBranches()
+	assert.NoError(t, err)
 	count = browser.GetCount()
 	assert.Equal(t, 8, count)
 	expectBranch = []string{
@@ -116,6 +117,7 @@ func browse(t *testing.T, browser *OPCBrowser) {
 		assert.Equal(t, expectBranch[i], nextName)
 	}
 	err = browser.MoveDown("Bucket Brigade")
+	assert.NoError(t, err)
 	err = browser.ShowLeafs(false)
 	assert.NoError(t, err)
 	count = browser.GetCount()

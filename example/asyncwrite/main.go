@@ -76,29 +76,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("register write complete callback failed: %s\n", err)
 	}
-	finish := make(chan struct{})
+	finishChan := make(chan struct{})
 	go func() {
-		for {
-			select {
-			case data := <-ch:
-				tagList := make([]string, len(data.ItemClientHandles))
-				for i, handle := range data.ItemClientHandles {
-					for _, item := range itemList {
-						if item.GetClientHandle() == handle {
-							tagList[i] = item.GetItemID()
-						}
-					}
-				}
-				fmt.Printf("write complete received\ntransaction id: %d\ngroup handle: %d\nmasterError: %v\nitems: [%s]\n", data.TransID, data.GroupHandle, data.MasterErr, strings.Join(tagList, ","))
-				for i, err := range data.Errors {
-					if err != nil {
-						log.Printf("async write item %s failed: %s\n", tagList[i], err)
-					}
-				}
-				close(finish)
-				return
-			}
-		}
+		loop(itemList, ch, finishChan)
 	}()
 	transID := uint32(1)
 	_, errs, err = group.AsyncWrite(serverHandles, value, transID)
@@ -111,6 +91,30 @@ func main() {
 		}
 	}
 	select {
-	case <-finish:
+	case <-finishChan:
+	}
+}
+
+func loop(itemList []*opcda.OPCItem, ch chan *opcda.WriteCompleteCallBackData, finishChan chan struct{}) {
+	for {
+		select {
+		case data := <-ch:
+			tagList := make([]string, len(data.ItemClientHandles))
+			for i, handle := range data.ItemClientHandles {
+				for _, item := range itemList {
+					if item.GetClientHandle() == handle {
+						tagList[i] = item.GetItemID()
+					}
+				}
+			}
+			fmt.Printf("write complete received\ntransaction id: %d\ngroup handle: %d\nmasterError: %v\nitems: [%s]\n", data.TransID, data.GroupHandle, data.MasterErr, strings.Join(tagList, ","))
+			for i, err := range data.Errors {
+				if err != nil {
+					log.Printf("async write item %s failed: %s\n", tagList[i], err)
+				}
+			}
+			close(finishChan)
+			return
+		}
 	}
 }

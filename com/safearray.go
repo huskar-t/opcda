@@ -22,6 +22,7 @@ type SafeArrayBound struct {
 	LowerBound int32
 }
 
+//gocyclo:ignore
 func (s *SafeArray) ToValueArray() (interface{}, error) {
 	var err error
 	totalElements, _ := s.TotalElements(0)

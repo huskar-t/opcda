@@ -380,95 +380,111 @@ func (g *OPCGroup) loop(ctx context.Context, dataChangeCB chan *CDataChangeCallB
 		select {
 		case <-ctx.Done():
 			return
-		case cb := <-dataChangeCB:
-			masterError := error(nil)
-			if (cb.MasterErr) < 0 {
-				masterError = g.getError(cb.MasterErr)
-			}
-			itemErrors := make([]error, len(cb.Errors))
-			for i, e := range cb.Errors {
-				if e < 0 {
-					itemErrors[i] = g.getError(e)
-				}
-			}
-			data := &DataChangeCallBackData{
-				TransID:           cb.TransID,
-				GroupHandle:       cb.GroupHandle,
-				MasterQuality:     cb.MasterQuality,
-				MasterErr:         masterError,
-				ItemClientHandles: cb.ItemClientHandles,
-				Values:            cb.Values,
-				Qualities:         cb.Qualities,
-				TimeStamps:        cb.TimeStamps,
-				Errors:            itemErrors,
-			}
-			for _, backData := range g.dataChangeList {
-				select {
-				case backData <- data:
-				default:
-				}
-			}
-		case cb := <-readCB:
-			masterError := error(nil)
-			if (cb.MasterErr) < 0 {
-				masterError = g.getError(cb.MasterErr)
-			}
-			itemErrors := make([]error, len(cb.Errors))
-			for i, e := range cb.Errors {
-				if e < 0 {
-					itemErrors[i] = g.getError(e)
-				}
-			}
-			data := &ReadCompleteCallBackData{
-				TransID:           cb.TransID,
-				GroupHandle:       cb.GroupHandle,
-				MasterQuality:     cb.MasterQuality,
-				MasterErr:         masterError,
-				ItemClientHandles: cb.ItemClientHandles,
-				Values:            cb.Values,
-				Qualities:         cb.Qualities,
-				TimeStamps:        cb.TimeStamps,
-				Errors:            itemErrors,
-			}
-			for _, backData := range g.readCompleteList {
-				select {
-				case backData <- data:
-				default:
-				}
-			}
-		case cb := <-writeCB:
-			masterError := error(nil)
-			if (cb.MasterErr) < 0 {
-				masterError = g.getError(cb.MasterErr)
-			}
-			itemErrors := make([]error, len(cb.Errors))
-			for i, e := range cb.Errors {
-				if e < 0 {
-					itemErrors[i] = g.getError(e)
-				}
-			}
-			data := &WriteCompleteCallBackData{
-				TransID:           cb.TransID,
-				GroupHandle:       cb.GroupHandle,
-				MasterErr:         masterError,
-				ItemClientHandles: cb.ItemClientHandles,
-				Errors:            itemErrors,
-			}
-			for _, backData := range g.writeCompleteList {
-				select {
-				case backData <- data:
-				default:
-				}
-			}
-		case cb := <-cancelCB:
-			data := &CancelCompleteCallBackData{
-				TransID:     cb.TransID,
-				GroupHandle: cb.GroupHandle,
-			}
-			for _, backData := range g.cancelCompleteList {
-				backData <- data
-			}
+		case cbData := <-dataChangeCB:
+			g.fireDataChange(cbData)
+		case cbData := <-readCB:
+			g.fireReadComplete(cbData)
+		case cbData := <-writeCB:
+			g.fireWriteComplete(cbData)
+		case cbData := <-cancelCB:
+			g.fireCancelComplete(cbData)
 		}
+	}
+}
+
+func (g *OPCGroup) fireDataChange(cbData *CDataChangeCallBackData) {
+	masterError := error(nil)
+	if (cbData.MasterErr) < 0 {
+		masterError = g.getError(cbData.MasterErr)
+	}
+	itemErrors := make([]error, len(cbData.Errors))
+	for i, e := range cbData.Errors {
+		if e < 0 {
+			itemErrors[i] = g.getError(e)
+		}
+	}
+	data := &DataChangeCallBackData{
+		TransID:           cbData.TransID,
+		GroupHandle:       cbData.GroupHandle,
+		MasterQuality:     cbData.MasterQuality,
+		MasterErr:         masterError,
+		ItemClientHandles: cbData.ItemClientHandles,
+		Values:            cbData.Values,
+		Qualities:         cbData.Qualities,
+		TimeStamps:        cbData.TimeStamps,
+		Errors:            itemErrors,
+	}
+	for _, backData := range g.dataChangeList {
+		select {
+		case backData <- data:
+		default:
+		}
+	}
+}
+
+func (g *OPCGroup) fireReadComplete(cbData *CReadCompleteCallBackData) {
+	masterError := error(nil)
+	if (cbData.MasterErr) < 0 {
+		masterError = g.getError(cbData.MasterErr)
+	}
+	itemErrors := make([]error, len(cbData.Errors))
+	for i, e := range cbData.Errors {
+		if e < 0 {
+			itemErrors[i] = g.getError(e)
+		}
+	}
+	data := &ReadCompleteCallBackData{
+		TransID:           cbData.TransID,
+		GroupHandle:       cbData.GroupHandle,
+		MasterQuality:     cbData.MasterQuality,
+		MasterErr:         masterError,
+		ItemClientHandles: cbData.ItemClientHandles,
+		Values:            cbData.Values,
+		Qualities:         cbData.Qualities,
+		TimeStamps:        cbData.TimeStamps,
+		Errors:            itemErrors,
+	}
+	for _, backData := range g.readCompleteList {
+		select {
+		case backData <- data:
+		default:
+		}
+	}
+}
+
+func (g *OPCGroup) fireWriteComplete(cbData *CWriteCompleteCallBackData) {
+	masterError := error(nil)
+	if (cbData.MasterErr) < 0 {
+		masterError = g.getError(cbData.MasterErr)
+	}
+	itemErrors := make([]error, len(cbData.Errors))
+	for i, e := range cbData.Errors {
+		if e < 0 {
+			itemErrors[i] = g.getError(e)
+		}
+	}
+	data := &WriteCompleteCallBackData{
+		TransID:           cbData.TransID,
+		GroupHandle:       cbData.GroupHandle,
+		MasterErr:         masterError,
+		ItemClientHandles: cbData.ItemClientHandles,
+		Errors:            itemErrors,
+	}
+	for _, backData := range g.writeCompleteList {
+		select {
+		case backData <- data:
+		default:
+		}
+	}
+}
+
+func (g *OPCGroup) fireCancelComplete(cbData *CCancelCompleteCallBackData) {
+	data := &CancelCompleteCallBackData{
+		TransID:     cbData.TransID,
+		GroupHandle: cbData.GroupHandle,
+	}
+	for _, backData := range g.cancelCompleteList {
+		backData <- data
 	}
 }
 
