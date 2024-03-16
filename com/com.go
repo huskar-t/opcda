@@ -27,6 +27,9 @@ var (
 )
 
 func CoTaskMemFree(pv unsafe.Pointer) {
+	if pv == nil {
+		return
+	}
 	r0, _, _ := syscall.SyscallN(procCoTaskMemFree.Addr(), uintptr(pv))
 	if int32(r0) < 0 {
 		panic(syscall.Errno(r0))
@@ -178,4 +181,52 @@ func SysFreeString(v *uint16) (err error) {
 		err = syscall.Errno(r0)
 	}
 	return
+}
+
+func MakeCOMObjectEx(hostname string, serverLocation CLSCTX, requestedClass *windows.GUID, requestedInterface *windows.GUID) (*IUnknown, error) {
+	requestedServerInfo := COSERVERINFO{
+		PwszName:  windows.StringToUTF16Ptr(hostname),
+		PAuthInfo: nil,
+	}
+	reqInterface := MULTI_QI{
+		PIID: requestedInterface,
+		PItf: nil,
+		Hr:   0,
+	}
+	err := CoCreateInstanceEx(requestedClass, nil, serverLocation, &requestedServerInfo, 1, &reqInterface)
+	if err != nil {
+		return nil, err
+	}
+	if reqInterface.Hr != 0 {
+		return nil, syscall.Errno(reqInterface.Hr)
+	}
+	return reqInterface.PItf, nil
+}
+
+func IsLocal(host string) bool {
+	return host == "" || host == "localhost" || host == "127.0.0.1"
+}
+
+// Initialize initialize COM with COINIT_MULTITHREADED
+func Initialize() {
+	windows.CoInitializeEx(0, windows.COINIT_MULTITHREADED)
+}
+
+// Uninitialize uninitialize COM
+func Uninitialize() {
+	windows.CoUninitialize()
+}
+
+func IsEqualGUID(guid1 *windows.GUID, guid2 *windows.GUID) bool {
+	return guid1.Data1 == guid2.Data1 &&
+		guid1.Data2 == guid2.Data2 &&
+		guid1.Data3 == guid2.Data3 &&
+		guid1.Data4[0] == guid2.Data4[0] &&
+		guid1.Data4[1] == guid2.Data4[1] &&
+		guid1.Data4[2] == guid2.Data4[2] &&
+		guid1.Data4[3] == guid2.Data4[3] &&
+		guid1.Data4[4] == guid2.Data4[4] &&
+		guid1.Data4[5] == guid2.Data4[5] &&
+		guid1.Data4[6] == guid2.Data4[6] &&
+		guid1.Data4[7] == guid2.Data4[7]
 }

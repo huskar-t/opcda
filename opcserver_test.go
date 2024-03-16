@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/huskar-t/opcda/com"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
@@ -19,10 +20,10 @@ const TestWriteErrorItem = "Write Error.Int4"
 const TestReadErrorItem = "Write Only.Int4"
 
 func TestMain(m *testing.M) {
-	Initialize()
-	Uninitialize()
-	Initialize()
-	defer Uninitialize()
+	com.Initialize()
+	com.Uninitialize()
+	com.Initialize()
+	defer com.Uninitialize()
 	m.Run()
 }
 func TestServers(t *testing.T) {

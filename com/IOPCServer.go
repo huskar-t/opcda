@@ -53,7 +53,7 @@ func (v *IOPCServer) AddGroup(
 		v.Vtbl().AddGroup,
 		uintptr(unsafe.Pointer(v.IUnknown)),
 		uintptr(unsafe.Pointer(pName)),
-		uintptr(BoolToBOOL(bActive)),
+		uintptr(BoolToComBOOL(bActive)),
 		uintptr(dwRequestedUpdateRate),
 		uintptr(hClientGroup),
 		uintptr(unsafe.Pointer(pTimeBias)),
@@ -72,7 +72,7 @@ func (v *IOPCServer) AddGroup(
 	return
 }
 
-func BoolToBOOL(b bool) int32 {
+func BoolToComBOOL(b bool) int32 {
 	if b {
 		return 1
 	}
@@ -149,7 +149,7 @@ func (v *IOPCServer) RemoveGroup(hServerGroup uint32, bForce bool) (err error) {
 		v.Vtbl().RemoveGroup,
 		uintptr(unsafe.Pointer(v.IUnknown)),
 		uintptr(hServerGroup),
-		uintptr(BoolToBOOL(bForce)),
+		uintptr(BoolToComBOOL(bForce)),
 		0,
 	)
 	if int32(r0) < 0 {

@@ -108,7 +108,7 @@ func (g *OPCGroup) GetIsActive() bool {
 
 // SetIsActive set whether the group is active
 func (g *OPCGroup) SetIsActive(isActive bool) error {
-	v := com.BoolToBOOL(isActive)
+	v := com.BoolToComBOOL(isActive)
 	_, err := g.groupStateMgt.SetState(nil, &v, nil, nil, nil, nil)
 	return err
 }
