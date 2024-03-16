@@ -32,11 +32,12 @@ func (sl *IOPCGroupStateMgt) Vtbl() *IOPCGroupStateMgtVtbl {
 
 func (sl *IOPCGroupStateMgt) GetState() (pUpdateRate uint32, pActive bool, ppName string, pTimeBias int32, pPercentDeadband float32, pLCID uint32, phClientGroup uint32, phServerGroup uint32, err error) {
 	var pName *uint16
+	var pActiveInt int32
 	r0, _, _ := syscall.SyscallN(
 		sl.Vtbl().GetState,
 		uintptr(unsafe.Pointer(sl.IUnknown)),
 		uintptr(unsafe.Pointer(&pUpdateRate)),
-		uintptr(unsafe.Pointer(&pActive)),
+		uintptr(unsafe.Pointer(&pActiveInt)),
 		uintptr(unsafe.Pointer(&pName)),
 		uintptr(unsafe.Pointer(&pTimeBias)),
 		uintptr(unsafe.Pointer(&pPercentDeadband)),
@@ -53,6 +54,7 @@ func (sl *IOPCGroupStateMgt) GetState() (pUpdateRate uint32, pActive bool, ppNam
 		}
 	}()
 	ppName = windows.UTF16PtrToString(pName)
+	pActive = pActiveInt != 0
 	return
 }
 

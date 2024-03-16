@@ -123,7 +123,7 @@ func (sl *IOPCItemMgt) ValidateItems(items []TagOPCITEMDEF, bBlobUpdate bool) ([
 		uintptr(unsafe.Pointer(sl.IUnknown)),
 		uintptr(dwCount),
 		uintptr(unsafe.Pointer(&items[0])),
-		uintptr(BoolToBOOL(bBlobUpdate)),
+		uintptr(BoolToComBOOL(bBlobUpdate)),
 		uintptr(unsafe.Pointer(&pValidationResults)),
 		uintptr(unsafe.Pointer(&pErrors)),
 	)
@@ -189,7 +189,7 @@ func (sl *IOPCItemMgt) SetActiveState(phServer []uint32, bActive bool) ([]int32,
 		uintptr(unsafe.Pointer(sl.IUnknown)),
 		uintptr(dwCount),
 		uintptr(unsafe.Pointer(&phServer[0])),
-		uintptr(BoolToBOOL(bActive)),
+		uintptr(BoolToComBOOL(bActive)),
 		uintptr(unsafe.Pointer(&pErrors)),
 	)
 	if hr < 0 {

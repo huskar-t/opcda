@@ -65,7 +65,7 @@ func NewDataEventReceiver(
 func DataQueryInterface(this unsafe.Pointer, iid *windows.GUID, punk *unsafe.Pointer) uintptr {
 	er := (*DataEventReceiver)(this)
 	*punk = nil
-	if IsEqualGUID(iid, er.clsid) || IsEqualGUID(iid, com.IID_IUnknown) {
+	if com.IsEqualGUID(iid, er.clsid) || com.IsEqualGUID(iid, com.IID_IUnknown) {
 		DataAddRef(this)
 		*punk = this
 		return com.S_OK

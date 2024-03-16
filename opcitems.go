@@ -175,7 +175,7 @@ func (is *OPCItems) Validate(tags []string, requestedDataTypes *[]com.VT, access
 		item := com.TagOPCITEMDEF{
 			SzAccessPath: windows.StringToUTF16Ptr(""),
 			SzItemID:     windows.StringToUTF16Ptr(v),
-			BActive:      com.BoolToBOOL(false),
+			BActive:      com.BoolToComBOOL(false),
 			HClient:      cHandle,
 			DwBlobSize:   0,
 			PBlob:        nil,
@@ -268,7 +268,7 @@ func (is *OPCItems) createDefinitions(tags []string, accessPath string, active b
 		definitions = append(definitions, com.TagOPCITEMDEF{
 			SzAccessPath: windows.StringToUTF16Ptr(accessPath),
 			SzItemID:     windows.StringToUTF16Ptr(v),
-			BActive:      com.BoolToBOOL(active),
+			BActive:      com.BoolToComBOOL(active),
 			HClient:      cHandle,
 			DwBlobSize:   0,
 			PBlob:        nil,

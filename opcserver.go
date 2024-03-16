@@ -2,7 +2,6 @@ package opcda
 
 import (
 	"fmt"
-	"syscall"
 	"time"
 	"unsafe"
 
@@ -30,14 +29,14 @@ type OPCServer struct {
 // Connect connect to OPC server
 func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	location := com.CLSCTX_LOCAL_SERVER
-	if !isLocal(node) {
+	if !com.IsLocal(node) {
 		location = com.CLSCTX_REMOTE_SERVER
 	}
 	clsid, err := windows.GUIDFromString(progID)
 	if err != nil {
 		return nil, err
 	}
-	iUnknownServer, err := makeCOMObjectEx(node, location, &clsid, &com.IID_IOPCServer)
+	iUnknownServer, err := com.MakeCOMObjectEx(node, location, &clsid, &com.IID_IOPCServer)
 	if err != nil {
 		return nil, err
 	}
@@ -120,10 +119,10 @@ type ServerInfo struct {
 // GetOPCServers get OPC servers from node
 func GetOPCServers(node string) ([]*ServerInfo, error) {
 	location := com.CLSCTX_LOCAL_SERVER
-	if !isLocal(node) {
+	if !com.IsLocal(node) {
 		location = com.CLSCTX_REMOTE_SERVER
 	}
-	iCatInfo, err := makeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList2)
+	iCatInfo, err := com.MakeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList2)
 	if err != nil {
 		return nil, err
 	}
@@ -169,10 +168,6 @@ func getServer(sl *com.IOPCServerList2, classID *windows.GUID) (*ServerInfo, err
 		ClsID:        classID,
 		VerIndProgID: windows.UTF16PtrToString(VerIndProgID),
 	}, nil
-}
-
-func isLocal(host string) bool {
-	return host == "" || host == "localhost" || host == "127.0.0.1"
 }
 
 // GetLocaleID get locale ID
@@ -376,24 +371,4 @@ func (s *OPCServer) Disconnect() error {
 	s.iCommon.Release()
 	s.iServer.Release()
 	return err
-}
-
-func makeCOMObjectEx(hostname string, serverLocation com.CLSCTX, requestedClass *windows.GUID, requestedInterface *windows.GUID) (*com.IUnknown, error) {
-	requestedServerInfo := com.COSERVERINFO{
-		PwszName:  windows.StringToUTF16Ptr(hostname),
-		PAuthInfo: nil,
-	}
-	reqInterface := com.MULTI_QI{
-		PIID: requestedInterface,
-		PItf: nil,
-		Hr:   0,
-	}
-	err := com.CoCreateInstanceEx(requestedClass, nil, serverLocation, &requestedServerInfo, 1, &reqInterface)
-	if err != nil {
-		return nil, err
-	}
-	if reqInterface.Hr != 0 {
-		return nil, syscall.Errno(reqInterface.Hr)
-	}
-	return reqInterface.PItf, nil
 }

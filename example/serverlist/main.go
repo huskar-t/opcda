@@ -4,11 +4,12 @@ import (
 	"fmt"
 
 	"github.com/huskar-t/opcda"
+	"github.com/huskar-t/opcda/com"
 )
 
 func main() {
-	opcda.Initialize()
-	defer opcda.Uninitialize()
+	com.Initialize()
+	defer com.Uninitialize()
 	host := "localhost"
 	serverInfos, err := opcda.GetOPCServers(host)
 	if err != nil {
