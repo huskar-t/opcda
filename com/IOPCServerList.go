@@ -62,3 +62,16 @@ func (sl *IOPCServerList2) GetClassDetails(guid *windows.GUID) (*uint16, *uint16
 	}
 	return ppszProgID, ppszUserType, ppszVerIndProgID, nil
 }
+
+func (sl *IOPCServerList2) CLSIDFromProgID(szProgID string) (*windows.GUID, error) {
+	var clsid windows.GUID
+	pProgID, err := syscall.UTF16PtrFromString(szProgID)
+	if err != nil {
+		return nil, err
+	}
+	r0, _, _ := syscall.SyscallN(sl.Vtbl().CLSIDFromProgID, uintptr(unsafe.Pointer(sl.IUnknown)), uintptr(unsafe.Pointer(pProgID)), uintptr(unsafe.Pointer(&clsid)))
+	if r0 != 0 {
+		return nil, syscall.Errno(r0)
+	}
+	return &clsid, nil
+}
