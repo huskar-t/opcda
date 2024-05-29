@@ -32,11 +32,17 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	if !com.IsLocal(node) {
 		location = com.CLSCTX_REMOTE_SERVER
 	}
-	clsid, err := windows.GUIDFromString(progID)
+	iCatInfo, err := com.MakeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList2)
 	if err != nil {
 		return nil, err
 	}
-	iUnknownServer, err := com.MakeCOMObjectEx(node, location, &clsid, &com.IID_IOPCServer)
+	defer iCatInfo.Release()
+	sl := &com.IOPCServerList2{IUnknown: iCatInfo}
+	clsid, err := sl.CLSIDFromProgID(progID)
+	if err != nil {
+		return nil, err
+	}
+	iUnknownServer, err := com.MakeCOMObjectEx(node, location, clsid, &com.IID_IOPCServer)
 	if err != nil {
 		return nil, err
 	}
