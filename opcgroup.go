@@ -46,20 +46,20 @@ func NewOPCGroup(
 	var iUnknownSyncIO *com.IUnknown
 	err := iUnknown.QueryInterface(&com.IID_IOPCSyncIO, unsafe.Pointer(&iUnknownSyncIO))
 	if err != nil {
-		return nil, err
+		return nil, NewOPCWrapperError("query interface IOPCSyncIO", err)
 	}
 	var iUnknownAsyncIO2 *com.IUnknown
 	err = iUnknown.QueryInterface(&com.IID_IOPCAsyncIO2, unsafe.Pointer(&iUnknownAsyncIO2))
 	if err != nil {
 		iUnknownSyncIO.Release()
-		return nil, err
+		return nil, NewOPCWrapperError("query interface IOPCAsyncIO2", err)
 	}
 	var iUnknownItemMgt *com.IUnknown
 	err = iUnknown.QueryInterface(&com.IID_IOPCItemMgt, unsafe.Pointer(&iUnknownItemMgt))
 	if err != nil {
 		iUnknownSyncIO.Release()
 		iUnknownAsyncIO2.Release()
-		return nil, err
+		return nil, NewOPCWrapperError("query interface IOPCItemMgt", err)
 	}
 
 	o := &OPCGroup{
@@ -343,7 +343,7 @@ func (g *OPCGroup) advice() (err error) {
 	var iUnknownContainer *com.IUnknown
 	err = g.groupStateMgt.QueryInterface(&com.IID_IConnectionPointContainer, unsafe.Pointer(&iUnknownContainer))
 	if err != nil {
-		return
+		return NewOPCWrapperError("query interface IConnectionPointContainer", err)
 	}
 	defer func() {
 		if err != nil {

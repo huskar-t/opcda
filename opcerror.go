@@ -1,6 +1,8 @@
 package opcda
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type OPCError struct {
 	ErrorCode    int32
@@ -54,3 +56,23 @@ var (
 	OPCNotFound        = uint32(0xC0040011)
 	OPCInvalidPID      = uint32(0xC0040203)
 )
+
+type OPCWrapperError struct {
+	Err  error
+	Info string
+}
+
+func (e *OPCWrapperError) Error() string {
+	if e.Err == nil {
+		return fmt.Sprintf("%s: <nil>", e.Info)
+	}
+	return fmt.Sprintf("%s: %s", e.Info, e.Err.Error())
+}
+
+func NewOPCWrapperError(info string, err error) error {
+	return &OPCWrapperError{Err: err, Info: info}
+}
+
+func (e *OPCWrapperError) Unwrap() error {
+	return e.Err
+}

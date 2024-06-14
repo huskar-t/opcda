@@ -36,7 +36,7 @@ func (sl *IOPCServerList2) Vtbl() *IOPCServerListVtbl {
 	return (*IOPCServerListVtbl)(unsafe.Pointer(sl.IUnknown.LpVtbl))
 }
 
-func (sl *IOPCServerList2) EnumClassesOfCateGories(rgcatidImpl []windows.GUID, rgcatidReq []windows.GUID) (ppenumClsid *IEnumGUID, err error) {
+func (sl *IOPCServerList2) EnumClassesOfCategories(rgcatidImpl []windows.GUID, rgcatidReq []windows.GUID) (ppenumClsid *IEnumGUID, err error) {
 	var r0 uintptr
 	cImplemented := uint32(len(rgcatidImpl))
 	cRequired := uint32(len(rgcatidReq))

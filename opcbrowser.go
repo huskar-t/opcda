@@ -20,7 +20,7 @@ func NewOPCBrowser(parent *OPCServer) (*OPCBrowser, error) {
 	var iBrowseServerAddressSpace *com.IUnknown
 	err := parent.iServer.QueryInterface(&com.IID_IOPCBrowseServerAddressSpace, unsafe.Pointer(&iBrowseServerAddressSpace))
 	if err != nil {
-		return nil, err
+		return nil, NewOPCWrapperError("query interface IOPCBrowseServerAddressSpace", err)
 	}
 	return &OPCBrowser{
 		iBrowseServerAddressSpace: &com.IOPCBrowseServerAddressSpace{IUnknown: iBrowseServerAddressSpace},

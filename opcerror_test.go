@@ -1,6 +1,8 @@
 package opcda
 
 import (
+	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -48,6 +50,125 @@ func TestOPCError_Error(t *testing.T) {
 				ErrorMessage: tt.fields.ErrorMessage,
 			}
 			assert.Equalf(t, tt.want, e.Error(), "Error()")
+		})
+	}
+}
+
+func TestOPCWrapperError_Error(t *testing.T) {
+	type fields struct {
+		Err  error
+		Info string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name: "Test with error and info",
+			fields: fields{
+				Err:  fmt.Errorf("test error"),
+				Info: "test info",
+			},
+			want: "test info: test error",
+		},
+		{
+			name: "Test with error and no info",
+			fields: fields{
+				Err:  fmt.Errorf("test error"),
+				Info: "",
+			},
+			want: ": test error",
+		},
+		{
+			name: "Test with no error and info",
+			fields: fields{
+				Err:  nil,
+				Info: "test info",
+			},
+			want: "test info: <nil>",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &OPCWrapperError{
+				Err:  tt.fields.Err,
+				Info: tt.fields.Info,
+			}
+			if got := e.Error(); got != tt.want {
+				t.Errorf("OPCWrapperError.Error() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewOPCWrapperError(t *testing.T) {
+	type args struct {
+		info string
+		err  error
+	}
+	tests := []struct {
+		name string
+		args args
+		want *OPCWrapperError
+	}{
+		{
+			name: "Test with error and info",
+			args: args{
+				err:  fmt.Errorf("test error"),
+				info: "test info",
+			},
+			want: &OPCWrapperError{
+				Err:  fmt.Errorf("test error"),
+				Info: "test info",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewOPCWrapperError(tt.args.info, tt.args.err); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewOPCWrapperError() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestOPCWrapperError_Unwrap(t *testing.T) {
+	type fields struct {
+		Err  error
+		Info string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   error
+	}{
+		{
+			name: "Test with error",
+			fields: fields{
+				Err:  fmt.Errorf("test error"),
+				Info: "test info",
+			},
+			want: fmt.Errorf("test error"),
+		},
+		{
+			name: "Test with no error",
+			fields: fields{
+				Err:  nil,
+				Info: "test info",
+			},
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &OPCWrapperError{
+				Err:  tt.fields.Err,
+				Info: tt.fields.Info,
+			}
+			if got := e.Unwrap(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("OPCWrapperError.Unwrap() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
