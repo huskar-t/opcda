@@ -6,6 +6,7 @@ import (
 	"unsafe"
 
 	"github.com/huskar-t/opcda/com"
+	"golang.org/x/sys/windows/registry"
 
 	"golang.org/x/sys/windows"
 )
@@ -32,15 +33,23 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	if !com.IsLocal(node) {
 		location = com.CLSCTX_REMOTE_SERVER
 	}
-	iCatInfo, err := com.MakeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList2)
-	if err != nil {
-		return nil, err
-	}
-	defer iCatInfo.Release()
-	sl := &com.IOPCServerList2{IUnknown: iCatInfo}
-	clsid, err := sl.CLSIDFromProgID(progID)
-	if err != nil {
-		return nil, err
+	var clsid *windows.GUID
+	if location == com.CLSCTX_LOCAL_SERVER {
+		id, err := windows.GUIDFromString(progID)
+		if err != nil {
+			return nil, err
+		}
+		clsid = &id
+	} else {
+		// try get clsid from server list
+		clsid, err = getClsIDFromServerList(progID, node, location)
+		if err != nil {
+			// try get clsid from windows reg
+			clsid, err = getClsIDFromReg(progID, node)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 	iUnknownServer, err := com.MakeCOMObjectEx(node, location, clsid, &com.IID_IOPCServer)
 	if err != nil {
@@ -113,6 +122,46 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	}
 	opcServer.groups = NewOPCGroups(opcServer)
 	return opcServer, nil
+}
+
+func getClsIDFromServerList(progID, node string, location com.CLSCTX) (*windows.GUID, error) {
+	iCatInfo, err := com.MakeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList2)
+	if err != nil {
+		return nil, err
+	}
+	defer iCatInfo.Release()
+	sl := &com.IOPCServerList2{IUnknown: iCatInfo}
+	clsid, err := sl.CLSIDFromProgID(progID)
+	if err != nil {
+		return nil, err
+	}
+	return clsid, nil
+}
+
+func getClsIDFromReg(progID, node string) (*windows.GUID, error) {
+	var clsid windows.GUID
+	var err error
+	hKey, err := registry.OpenRemoteKey(node, registry.CLASSES_ROOT)
+	if err != nil {
+		return nil, err
+	}
+	defer hKey.Close()
+	hProgIDKey, err := registry.OpenKey(hKey, progID, registry.READ)
+	if err != nil {
+		return nil, err
+	}
+	defer hProgIDKey.Close()
+	hClsidKey, err := registry.OpenKey(hProgIDKey, "CLSID", registry.READ)
+	if err != nil {
+		return nil, err
+	}
+	defer hClsidKey.Close()
+	clsidStr, _, err := hClsidKey.GetStringValue("")
+	if err != nil {
+		return nil, err
+	}
+	clsid, err = windows.GUIDFromString(clsidStr)
+	return &clsid, err
 }
 
 type ServerInfo struct {
