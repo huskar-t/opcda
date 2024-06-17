@@ -460,7 +460,7 @@ func Test_getClsIDFromServerList(t *testing.T) {
 			args: args{
 				progID:   TestProgID,
 				node:     "InvalidNode",
-				location: com.CLSCTX_LOCAL_SERVER,
+				location: com.CLSCTX_REMOTE_SERVER,
 			},
 			want:    nil,
 			wantErr: assert.Error,

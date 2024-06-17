@@ -2,6 +2,7 @@ package com
 
 import (
 	"errors"
+	"strings"
 	"syscall"
 	"unsafe"
 
@@ -184,16 +185,18 @@ func SysFreeString(v *uint16) (err error) {
 }
 
 func MakeCOMObjectEx(hostname string, serverLocation CLSCTX, requestedClass *windows.GUID, requestedInterface *windows.GUID) (*IUnknown, error) {
-	requestedServerInfo := COSERVERINFO{
-		PwszName:  windows.StringToUTF16Ptr(hostname),
-		PAuthInfo: nil,
-	}
 	reqInterface := MULTI_QI{
 		PIID: requestedInterface,
 		PItf: nil,
 		Hr:   0,
 	}
-	err := CoCreateInstanceEx(requestedClass, nil, serverLocation, &requestedServerInfo, 1, &reqInterface)
+	var serverInfoPtr *COSERVERINFO = nil
+	if serverLocation != CLSCTX_LOCAL_SERVER {
+		serverInfoPtr = &COSERVERINFO{
+			PwszName: windows.StringToUTF16Ptr(hostname),
+		}
+	}
+	err := CoCreateInstanceEx(requestedClass, nil, serverLocation, serverInfoPtr, 1, &reqInterface)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +207,14 @@ func MakeCOMObjectEx(hostname string, serverLocation CLSCTX, requestedClass *win
 }
 
 func IsLocal(host string) bool {
-	return host == "" || host == "localhost" || host == "127.0.0.1"
+	if host == "" || host == "localhost" || host == "127.0.0.1" {
+		return true
+	}
+	name, err := windows.ComputerName()
+	if err != nil {
+		return false
+	}
+	return strings.ToLower(name) == strings.ToLower(host)
 }
 
 // Initialize initialize COM with COINIT_MULTITHREADED
