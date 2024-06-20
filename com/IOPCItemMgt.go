@@ -80,7 +80,7 @@ func (sl *IOPCItemMgt) AddItems(items []TagOPCITEMDEF) ([]TagOPCITEMRESULTStruct
 	dwCount := uint32(len(items))
 	var pAddResults unsafe.Pointer
 	var pErrors unsafe.Pointer
-	hr, _, _ := syscall.SyscallN(
+	r0, _, _ := syscall.SyscallN(
 		sl.Vtbl().AddItems,
 		uintptr(unsafe.Pointer(sl.IUnknown)),
 		uintptr(dwCount),
@@ -88,8 +88,8 @@ func (sl *IOPCItemMgt) AddItems(items []TagOPCITEMDEF) ([]TagOPCITEMRESULTStruct
 		uintptr(unsafe.Pointer(&pAddResults)),
 		uintptr(unsafe.Pointer(&pErrors)),
 	)
-	if hr < 0 {
-		return nil, nil, syscall.Errno(hr)
+	if int32(r0) < 0 {
+		return nil, nil, syscall.Errno(r0)
 	}
 	defer func() {
 		CoTaskMemFree(pAddResults)
@@ -118,7 +118,7 @@ func (sl *IOPCItemMgt) ValidateItems(items []TagOPCITEMDEF, bBlobUpdate bool) ([
 	dwCount := uint32(len(items))
 	var pValidationResults unsafe.Pointer
 	var pErrors unsafe.Pointer
-	hr, _, _ := syscall.SyscallN(
+	r0, _, _ := syscall.SyscallN(
 		sl.Vtbl().ValidateItems,
 		uintptr(unsafe.Pointer(sl.IUnknown)),
 		uintptr(dwCount),
@@ -127,8 +127,8 @@ func (sl *IOPCItemMgt) ValidateItems(items []TagOPCITEMDEF, bBlobUpdate bool) ([
 		uintptr(unsafe.Pointer(&pValidationResults)),
 		uintptr(unsafe.Pointer(&pErrors)),
 	)
-	if hr < 0 {
-		return nil, nil, syscall.Errno(hr)
+	if int32(r0) < 0 {
+		return nil, nil, syscall.Errno(r0)
 	}
 	defer func() {
 		CoTaskMemFree(pValidationResults)
@@ -154,15 +154,15 @@ func (sl *IOPCItemMgt) ValidateItems(items []TagOPCITEMDEF, bBlobUpdate bool) ([
 func (sl *IOPCItemMgt) RemoveItems(phServer []uint32) ([]int32, error) {
 	dwCount := uint32(len(phServer))
 	var pErrors unsafe.Pointer
-	hr, _, _ := syscall.SyscallN(
+	r0, _, _ := syscall.SyscallN(
 		sl.Vtbl().RemoveItems,
 		uintptr(unsafe.Pointer(sl.IUnknown)),
 		uintptr(dwCount),
 		uintptr(unsafe.Pointer(&phServer[0])),
 		uintptr(unsafe.Pointer(&pErrors)),
 	)
-	if hr < 0 {
-		return nil, syscall.Errno(hr)
+	if int32(r0) < 0 {
+		return nil, syscall.Errno(r0)
 	}
 	defer func() {
 		CoTaskMemFree(pErrors)
@@ -184,7 +184,7 @@ func (sl *IOPCItemMgt) RemoveItems(phServer []uint32) ([]int32, error) {
 func (sl *IOPCItemMgt) SetActiveState(phServer []uint32, bActive bool) ([]int32, error) {
 	dwCount := uint32(len(phServer))
 	var pErrors unsafe.Pointer
-	hr, _, _ := syscall.SyscallN(
+	r0, _, _ := syscall.SyscallN(
 		sl.Vtbl().SetActiveState,
 		uintptr(unsafe.Pointer(sl.IUnknown)),
 		uintptr(dwCount),
@@ -192,8 +192,8 @@ func (sl *IOPCItemMgt) SetActiveState(phServer []uint32, bActive bool) ([]int32,
 		uintptr(BoolToComBOOL(bActive)),
 		uintptr(unsafe.Pointer(&pErrors)),
 	)
-	if hr < 0 {
-		return nil, syscall.Errno(hr)
+	if int32(r0) < 0 {
+		return nil, syscall.Errno(r0)
 	}
 	defer func() {
 		CoTaskMemFree(pErrors)
@@ -215,7 +215,7 @@ func (sl *IOPCItemMgt) SetActiveState(phServer []uint32, bActive bool) ([]int32,
 func (sl *IOPCItemMgt) SetClientHandles(phServer []uint32, phClient []uint32) ([]int32, error) {
 	dwCount := uint32(len(phServer))
 	var pErrors unsafe.Pointer
-	hr, _, _ := syscall.SyscallN(
+	r0, _, _ := syscall.SyscallN(
 		sl.Vtbl().SetClientHandles,
 		uintptr(unsafe.Pointer(sl.IUnknown)),
 		uintptr(dwCount),
@@ -223,8 +223,8 @@ func (sl *IOPCItemMgt) SetClientHandles(phServer []uint32, phClient []uint32) ([
 		uintptr(unsafe.Pointer(&phClient[0])),
 		uintptr(unsafe.Pointer(&pErrors)),
 	)
-	if hr < 0 {
-		return nil, syscall.Errno(hr)
+	if int32(r0) < 0 {
+		return nil, syscall.Errno(r0)
 	}
 	defer func() {
 		CoTaskMemFree(pErrors)
@@ -246,7 +246,7 @@ func (sl *IOPCItemMgt) SetClientHandles(phServer []uint32, phClient []uint32) ([
 func (sl *IOPCItemMgt) SetDatatypes(phServer []uint32, pRequestedDatatypes []VT) ([]int32, error) {
 	dwCount := uint32(len(phServer))
 	var pErrors unsafe.Pointer
-	hr, _, _ := syscall.SyscallN(
+	r0, _, _ := syscall.SyscallN(
 		sl.Vtbl().SetDatatypes,
 		uintptr(unsafe.Pointer(sl.IUnknown)),
 		uintptr(dwCount),
@@ -254,8 +254,8 @@ func (sl *IOPCItemMgt) SetDatatypes(phServer []uint32, pRequestedDatatypes []VT)
 		uintptr(unsafe.Pointer(&pRequestedDatatypes[0])),
 		uintptr(unsafe.Pointer(&pErrors)),
 	)
-	if hr < 0 {
-		return nil, syscall.Errno(hr)
+	if int32(r0) < 0 {
+		return nil, syscall.Errno(r0)
 	}
 	defer func() {
 		CoTaskMemFree(pErrors)
