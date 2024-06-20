@@ -6,6 +6,7 @@ import (
 	"unsafe"
 
 	"github.com/huskar-t/opcda/com"
+	"golang.org/x/sys/windows/registry"
 
 	"golang.org/x/sys/windows"
 )
@@ -32,19 +33,27 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	if !com.IsLocal(node) {
 		location = com.CLSCTX_REMOTE_SERVER
 	}
-	iCatInfo, err := com.MakeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList2)
-	if err != nil {
-		return nil, err
-	}
-	defer iCatInfo.Release()
-	sl := &com.IOPCServerList2{IUnknown: iCatInfo}
-	clsid, err := sl.CLSIDFromProgID(progID)
-	if err != nil {
-		return nil, err
+	var clsid *windows.GUID
+	if location == com.CLSCTX_LOCAL_SERVER {
+		id, err := windows.GUIDFromString(progID)
+		if err != nil {
+			return nil, NewOPCWrapperError("windows.GUIDFromString", err)
+		}
+		clsid = &id
+	} else {
+		// try get clsid from server list
+		clsid, err = getClsIDFromServerList(progID, node, location)
+		if err != nil {
+			// try get clsid from windows reg
+			clsid, err = getClsIDFromReg(progID, node)
+			if err != nil {
+				return nil, NewOPCWrapperError("getClsIDFromReg", err)
+			}
+		}
 	}
 	iUnknownServer, err := com.MakeCOMObjectEx(node, location, clsid, &com.IID_IOPCServer)
 	if err != nil {
-		return nil, err
+		return nil, NewOPCWrapperError("make com object IOPCServer", err)
 	}
 	defer func() {
 		if err != nil {
@@ -54,7 +63,7 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	var iUnknownCommon *com.IUnknown
 	err = iUnknownServer.QueryInterface(&com.IID_IOPCCommon, unsafe.Pointer(&iUnknownCommon))
 	if err != nil {
-		return nil, err
+		return nil, NewOPCWrapperError("server query interface IOPCCommon", err)
 	}
 	defer func() {
 		if err != nil {
@@ -64,7 +73,7 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	var iUnknownItemProperties *com.IUnknown
 	err = iUnknownServer.QueryInterface(&com.IID_IOPCItemProperties, unsafe.Pointer(&iUnknownItemProperties))
 	if err != nil {
-		return nil, err
+		return nil, NewOPCWrapperError("server query interface IOPCItemProperties", err)
 	}
 	defer func() {
 		if err != nil {
@@ -77,7 +86,7 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	var iUnknownContainer *com.IUnknown
 	err = iUnknownServer.QueryInterface(&com.IID_IConnectionPointContainer, unsafe.Pointer(&iUnknownContainer))
 	if err != nil {
-		return nil, err
+		return nil, NewOPCWrapperError("server query interface IConnectionPointContainer", err)
 	}
 	defer func() {
 		if err != nil {
@@ -87,7 +96,7 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	container := &com.IConnectionPointContainer{IUnknown: iUnknownContainer}
 	point, err := container.FindConnectionPoint(&IID_IOPCShutdown)
 	if err != nil {
-		return nil, err
+		return nil, NewOPCWrapperError("container find connect point", err)
 	}
 	defer func() {
 		if err != nil {
@@ -97,7 +106,7 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	event := NewShutdownEventReceiver()
 	cookie, err := point.Advise((*com.IUnknown)(unsafe.Pointer(event)))
 	if err != nil {
-		return nil, err
+		return nil, NewOPCWrapperError("point advice", err)
 	}
 	opcServer = &OPCServer{
 		iServer:       server,
@@ -115,6 +124,46 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	return opcServer, nil
 }
 
+func getClsIDFromServerList(progID, node string, location com.CLSCTX) (*windows.GUID, error) {
+	iCatInfo, err := com.MakeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList2)
+	if err != nil {
+		return nil, err
+	}
+	defer iCatInfo.Release()
+	sl := &com.IOPCServerList2{IUnknown: iCatInfo}
+	clsid, err := sl.CLSIDFromProgID(progID)
+	if err != nil {
+		return nil, err
+	}
+	return clsid, nil
+}
+
+func getClsIDFromReg(progID, node string) (*windows.GUID, error) {
+	var clsid windows.GUID
+	var err error
+	hKey, err := registry.OpenRemoteKey(node, registry.CLASSES_ROOT)
+	if err != nil {
+		return nil, err
+	}
+	defer hKey.Close()
+	hProgIDKey, err := registry.OpenKey(hKey, progID, registry.READ)
+	if err != nil {
+		return nil, err
+	}
+	defer hProgIDKey.Close()
+	hClsidKey, err := registry.OpenKey(hProgIDKey, "CLSID", registry.READ)
+	if err != nil {
+		return nil, err
+	}
+	defer hClsidKey.Close()
+	clsidStr, _, err := hClsidKey.GetStringValue("")
+	if err != nil {
+		return nil, err
+	}
+	clsid, err = windows.GUIDFromString(clsidStr)
+	return &clsid, err
+}
+
 type ServerInfo struct {
 	ProgID       string
 	ClsStr       string
@@ -130,14 +179,14 @@ func GetOPCServers(node string) ([]*ServerInfo, error) {
 	}
 	iCatInfo, err := com.MakeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList2)
 	if err != nil {
-		return nil, err
+		return nil, NewOPCWrapperError("make com object IOPCServerList2", err)
 	}
 	cids := []windows.GUID{IID_CATID_OPCDAServer10, IID_CATID_OPCDAServer20}
 	defer iCatInfo.Release()
 	sl := &com.IOPCServerList2{IUnknown: iCatInfo}
-	iEnum, err := sl.EnumClassesOfCateGories(cids, nil)
+	iEnum, err := sl.EnumClassesOfCategories(cids, nil)
 	if err != nil {
-		return nil, err
+		return nil, NewOPCWrapperError("server list EnumClassesOfCategories", err)
 	}
 	defer iEnum.Release()
 	var result []*ServerInfo
@@ -150,7 +199,7 @@ func GetOPCServers(node string) ([]*ServerInfo, error) {
 		}
 		server, err := getServer(sl, &classID)
 		if err != nil {
-			return nil, err
+			return nil, NewOPCWrapperError("getServer", err)
 		}
 		result = append(result, server)
 	}

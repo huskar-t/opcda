@@ -1,11 +1,13 @@
 package opcda
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/huskar-t/opcda/com"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
 )
@@ -355,4 +357,122 @@ func TestOPCServer_RegisterServerShutDown(t *testing.T) {
 		t.Log(reason)
 	}
 	<-done
+}
+
+func Test_getClsIDFromReg(t *testing.T) {
+	id, err := windows.GUIDFromString(TestProgID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	localNode, err := windows.ComputerName()
+	if err != nil {
+		t.Fatal(err)
+	}
+	type args struct {
+		progID string
+		node   string
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		want    *windows.GUID
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "normal",
+			args: args{
+				progID: TestProgID,
+				node:   localNode,
+			},
+			want:    &id,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "wrong node",
+			args: args{
+				progID: TestProgID,
+				node:   "wrong",
+			},
+			want:    nil,
+			wantErr: assert.Error,
+		},
+		{
+			name: "wrong progID",
+			args: args{
+				progID: "wrong",
+				node:   localNode,
+			},
+			want:    nil,
+			wantErr: assert.Error,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getClsIDFromReg(tt.args.progID, tt.args.node)
+			if !tt.wantErr(t, err, fmt.Sprintf("getClsIDFromReg(%v, %v)", tt.args.progID, tt.args.node)) {
+				return
+			}
+			assert.Equalf(t, tt.want, got, "getClsIDFromReg(%v, %v)", tt.args.progID, tt.args.node)
+		})
+	}
+}
+
+func Test_getClsIDFromServerList(t *testing.T) {
+	id, err := windows.GUIDFromString(TestProgID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	type args struct {
+		progID   string
+		node     string
+		location com.CLSCTX
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *windows.GUID
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "Test with valid progID and node",
+			args: args{
+				progID:   TestProgID,
+				node:     TestHost,
+				location: com.CLSCTX_LOCAL_SERVER,
+			},
+			want:    &id,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Test with invalid progID",
+			args: args{
+				progID:   "InvalidProgID",
+				node:     TestHost,
+				location: com.CLSCTX_LOCAL_SERVER,
+			},
+			want:    nil,
+			wantErr: assert.Error,
+		},
+		{
+			name: "Test with invalid node",
+			args: args{
+				progID:   TestProgID,
+				node:     "InvalidNode",
+				location: com.CLSCTX_REMOTE_SERVER,
+			},
+			want:    nil,
+			wantErr: assert.Error,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getClsIDFromServerList(tt.args.progID, tt.args.node, tt.args.location)
+			if !tt.wantErr(t, err, fmt.Sprintf("getClsIDFromServerList(%v, %v, %v)", tt.args.progID, tt.args.node, tt.args.location)) {
+				return
+			}
+			assert.Equalf(t, tt.want, got, "getClsIDFromServerList(%v, %v, %v)", tt.args.progID, tt.args.node, tt.args.location)
+		})
+	}
 }
