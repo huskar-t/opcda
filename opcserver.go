@@ -83,10 +83,20 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	server := &com.IOPCServer{IUnknown: iUnknownServer}
 	common := &com.IOPCCommon{IUnknown: iUnknownCommon}
 	itemProperties := &com.IOPCItemProperties{IUnknown: iUnknownItemProperties}
+	opcServer = &OPCServer{
+		iServer:       server,
+		iCommon:       common,
+		iItemProperty: itemProperties,
+		Name:          progID,
+		Node:          node,
+		location:      location,
+	}
+	opcServer.groups = NewOPCGroups(opcServer)
+
 	var iUnknownContainer *com.IUnknown
 	err = iUnknownServer.QueryInterface(&com.IID_IConnectionPointContainer, unsafe.Pointer(&iUnknownContainer))
 	if err != nil {
-		return nil, NewOPCWrapperError("server query interface IConnectionPointContainer", err)
+		return opcServer, nil
 	}
 	defer func() {
 		if err != nil {
@@ -108,19 +118,11 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	if err != nil {
 		return nil, NewOPCWrapperError("point advice", err)
 	}
-	opcServer = &OPCServer{
-		iServer:       server,
-		iCommon:       common,
-		iItemProperty: itemProperties,
-		Name:          progID,
-		Node:          node,
-		location:      location,
-		container:     container,
-		point:         point,
-		event:         event,
-		cookie:        cookie,
-	}
-	opcServer.groups = NewOPCGroups(opcServer)
+
+	opcServer.container = container
+	opcServer.point = point
+	opcServer.event = event
+	opcServer.cookie = cookie
 	return opcServer, nil
 }
 
@@ -418,12 +420,28 @@ func (s *OPCServer) RegisterServerShutDown(ch chan string) error {
 
 // Disconnect from OPC server
 func (s *OPCServer) Disconnect() error {
-	err := s.point.Unadvise(s.cookie)
-	s.point.Release()
-	s.container.Release()
-	s.groups.Release()
-	s.iItemProperty.Release()
-	s.iCommon.Release()
-	s.iServer.Release()
+	var err error
+	if s.point != nil {
+		err = s.point.Unadvise(s.cookie)
+		s.point.Release()
+	}
+	if s.container != nil {
+		s.container.Release()
+	}
+	if s.groups != nil {
+		s.groups.Release()
+	}
+	if s.iItemProperty != nil {
+		s.iItemProperty.Release()
+	}
+	if s.iItemProperty != nil {
+		s.iItemProperty.Release()
+	}
+	if s.iCommon != nil {
+		s.iCommon.Release()
+	}
+	if s.iServer != nil {
+		s.iServer.Release()
+	}
 	return err
 }

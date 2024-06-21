@@ -251,6 +251,9 @@ func (g *OPCGroup) Release() {
 		g.container.Release()
 		g.event = nil
 	}
+	if g.cancel != nil {
+		g.cancel()
+	}
 	g.items.Release()
 	g.groupStateMgt.Release()
 	g.syncIO.Release()

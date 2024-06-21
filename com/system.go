@@ -34,7 +34,7 @@ func (p *IConnectionPoint) Advise(pUnkSink *IUnknown) (cookie uint32, err error)
 
 func (p *IConnectionPoint) Unadvise(dwCookie uint32) error {
 	r0, _, _ := syscall.SyscallN(p.Vtbl().Unadvise, uintptr(unsafe.Pointer(p.IUnknown)), uintptr(dwCookie))
-	if r0 < 0 {
+	if int32(r0) < 0 {
 		return syscall.Errno(r0)
 	}
 	return nil
@@ -70,7 +70,7 @@ func (c *IConnectionPointContainer) FindConnectionPoint(riid *windows.GUID) (*IC
 		uintptr(unsafe.Pointer(riid)),
 		uintptr(unsafe.Pointer(&iUnknown)),
 	)
-	if r0 < 0 {
+	if int32(r0) < 0 {
 		return nil, syscall.Errno(r0)
 	}
 	return &IConnectionPoint{iUnknown}, nil
