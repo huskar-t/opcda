@@ -141,29 +141,35 @@ func getClsIDFromServerList(progID, node string, location com.CLSCTX) (*windows.
 }
 
 func getClsIDFromReg(progID, node string) (*windows.GUID, error) {
-	var clsid windows.GUID
+	var clsid *windows.GUID
 	var err error
 	hKey, err := registry.OpenRemoteKey(node, registry.CLASSES_ROOT)
 	if err != nil {
 		return nil, err
 	}
 	defer hKey.Close()
+
 	hProgIDKey, err := registry.OpenKey(hKey, progID, registry.READ)
 	if err != nil {
 		return nil, err
 	}
 	defer hProgIDKey.Close()
+	_, clsid, err = getClsidFromProgIDKey(hProgIDKey)
+	return clsid, err
+}
+
+func getClsidFromProgIDKey(hProgIDKey registry.Key) (string, *windows.GUID, error) {
 	hClsidKey, err := registry.OpenKey(hProgIDKey, "CLSID", registry.READ)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 	defer hClsidKey.Close()
 	clsidStr, _, err := hClsidKey.GetStringValue("")
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
-	clsid, err = windows.GUIDFromString(clsidStr)
-	return &clsid, err
+	clsid, err := windows.GUIDFromString(clsidStr)
+	return clsidStr, &clsid, err
 }
 
 type ServerInfo struct {
@@ -188,7 +194,7 @@ func GetOPCServers(node string) ([]*ServerInfo, error) {
 	sl := &com.IOPCServerList2{IUnknown: iCatInfo}
 	iEnum, err := sl.EnumClassesOfCategories(cids, nil)
 	if err != nil {
-		return nil, NewOPCWrapperError("server list EnumClassesOfCategories", err)
+		return getServersFromReg(node)
 	}
 	defer iEnum.Release()
 	var result []*ServerInfo
@@ -206,6 +212,47 @@ func GetOPCServers(node string) ([]*ServerInfo, error) {
 		result = append(result, server)
 	}
 	return result, nil
+}
+
+func getServersFromReg(node string) ([]*ServerInfo, error) {
+	var result []*ServerInfo
+	var err error
+	hKey, err := registry.OpenRemoteKey(node, registry.CLASSES_ROOT)
+	if err != nil {
+		return nil, err
+	}
+	defer hKey.Close()
+	tsKeys, _ := hKey.ReadSubKeyNames(-1)
+	for _, tsKey := range tsKeys {
+		info := getServersFromKey(hKey, tsKey)
+		if info != nil {
+			result = append(result, info)
+		}
+	}
+	return result, nil
+}
+
+func getServersFromKey(hKey registry.Key, progID string) *ServerInfo {
+	hProgIDKey, err := registry.OpenKey(hKey, progID, registry.READ)
+	if err != nil {
+		return nil
+	}
+	defer hProgIDKey.Close()
+	hOPCKey, err := registry.OpenKey(hProgIDKey, "OPC", registry.READ)
+	if err != nil {
+		return nil
+	}
+	defer hOPCKey.Close()
+	clsidStr, clsid, err := getClsidFromProgIDKey(hProgIDKey)
+	if err != nil {
+		return nil
+	}
+	return &ServerInfo{
+		ProgID:       progID,
+		ClsStr:       clsidStr,
+		VerIndProgID: progID,
+		ClsID:        clsid,
+	}
 }
 
 func getServer(sl *com.IOPCServerList2, classID *windows.GUID) (*ServerInfo, error) {
