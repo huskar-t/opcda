@@ -476,3 +476,16 @@ func Test_getClsIDFromServerList(t *testing.T) {
 		})
 	}
 }
+
+func Test_getServersFromReg(t *testing.T) {
+	localNode, err := windows.ComputerName()
+	if err != nil {
+		t.Fatal(err)
+	}
+	servers, err := getServersFromReg(localNode)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, servers)
+	for _, server := range servers {
+		t.Log(server)
+	}
+}
