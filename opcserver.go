@@ -181,6 +181,14 @@ type ServerInfo struct {
 
 // GetOPCServers get OPC servers from node
 func GetOPCServers(node string) ([]*ServerInfo, error) {
+	result, err := getServersFromOpcServerList(node)
+	if err != nil {
+		return getServersFromReg(node)
+	}
+	return result, nil
+}
+
+func getServersFromOpcServerList(node string) ([]*ServerInfo, error) {
 	location := com.CLSCTX_LOCAL_SERVER
 	if !com.IsLocal(node) {
 		location = com.CLSCTX_REMOTE_SERVER
@@ -194,7 +202,7 @@ func GetOPCServers(node string) ([]*ServerInfo, error) {
 	sl := &com.IOPCServerList2{IUnknown: iCatInfo}
 	iEnum, err := sl.EnumClassesOfCategories(cids, nil)
 	if err != nil {
-		return getServersFromReg(node)
+		return nil, NewOPCWrapperError("enum classes of categories", err)
 	}
 	defer iEnum.Release()
 	var result []*ServerInfo
