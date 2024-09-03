@@ -33,23 +33,9 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	if !com.IsLocal(node) {
 		location = com.CLSCTX_REMOTE_SERVER
 	}
-	var clsid *windows.GUID
-	if location == com.CLSCTX_LOCAL_SERVER {
-		id, err := windows.GUIDFromString(progID)
-		if err != nil {
-			return nil, NewOPCWrapperError("windows.GUIDFromString", err)
-		}
-		clsid = &id
-	} else {
-		// try get clsid from server list
-		clsid, err = getClsIDFromServerList(progID, node, location)
-		if err != nil {
-			// try get clsid from windows reg
-			clsid, err = getClsIDFromReg(progID, node)
-			if err != nil {
-				return nil, NewOPCWrapperError("getClsIDFromReg", err)
-			}
-		}
+	clsid, err := getClsID(progID, node, location)
+	if err != nil {
+		return nil, NewOPCWrapperError("get clsid", err)
 	}
 	iUnknownServer, err := com.MakeCOMObjectEx(node, location, clsid, &com.IID_IOPCServer)
 	if err != nil {
@@ -124,6 +110,27 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 	opcServer.event = event
 	opcServer.cookie = cookie
 	return opcServer, nil
+}
+
+func getClsID(progID, node string, location com.CLSCTX) (clsid *windows.GUID, err error) {
+	if location == com.CLSCTX_LOCAL_SERVER {
+		id, err := windows.GUIDFromString(progID)
+		if err != nil {
+			return nil, NewOPCWrapperError("windows.GUIDFromString", err)
+		}
+		return &id, nil
+	} else {
+		// try get clsid from server list
+		clsid, err = getClsIDFromServerList(progID, node, location)
+		if err != nil {
+			// try get clsid from windows reg
+			clsid, err = getClsIDFromReg(progID, node)
+			if err != nil {
+				return nil, NewOPCWrapperError("getClsIDFromReg", err)
+			}
+		}
+		return clsid, nil
+	}
 }
 
 func getClsIDFromServerList(progID, node string, location com.CLSCTX) (*windows.GUID, error) {
