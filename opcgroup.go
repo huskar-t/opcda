@@ -274,7 +274,7 @@ type DataChangeCallBackData struct {
 
 // RegisterDataChange Register to receive data change events
 func (g *OPCGroup) RegisterDataChange(ch chan *DataChangeCallBackData) error {
-	err := g.advice()
+	err := g.advise()
 	if err != nil {
 		return err
 	}
@@ -284,7 +284,7 @@ func (g *OPCGroup) RegisterDataChange(ch chan *DataChangeCallBackData) error {
 
 // RegisterReadComplete Register to receive read complete events
 func (g *OPCGroup) RegisterReadComplete(ch chan *ReadCompleteCallBackData) error {
-	err := g.advice()
+	err := g.advise()
 	if err != nil {
 		return err
 	}
@@ -294,7 +294,7 @@ func (g *OPCGroup) RegisterReadComplete(ch chan *ReadCompleteCallBackData) error
 
 // RegisterWriteComplete Register to receive write complete events
 func (g *OPCGroup) RegisterWriteComplete(ch chan *WriteCompleteCallBackData) error {
-	err := g.advice()
+	err := g.advise()
 	if err != nil {
 		return err
 	}
@@ -304,7 +304,7 @@ func (g *OPCGroup) RegisterWriteComplete(ch chan *WriteCompleteCallBackData) err
 
 // RegisterCancelComplete Register to receive cancel complete events
 func (g *OPCGroup) RegisterCancelComplete(ch chan *CancelCompleteCallBackData) error {
-	err := g.advice()
+	err := g.advise()
 	if err != nil {
 		return err
 	}
@@ -337,7 +337,7 @@ type CancelCompleteCallBackData struct {
 	GroupHandle uint32
 }
 
-func (g *OPCGroup) advice() (err error) {
+func (g *OPCGroup) advise() (err error) {
 	g.callbackLock.Lock()
 	defer g.callbackLock.Unlock()
 	if g.event != nil {
