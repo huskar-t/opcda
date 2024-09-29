@@ -500,9 +500,6 @@ func (s *OPCServer) Disconnect() error {
 	if s.iItemProperty != nil {
 		s.iItemProperty.Release()
 	}
-	if s.iItemProperty != nil {
-		s.iItemProperty.Release()
-	}
 	if s.iCommon != nil {
 		s.iCommon.Release()
 	}
