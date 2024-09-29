@@ -78,37 +78,6 @@ func Connect(progID, node string) (opcServer *OPCServer, err error) {
 		location:      location,
 	}
 	opcServer.groups = NewOPCGroups(opcServer)
-
-	var iUnknownContainer *com.IUnknown
-	err = iUnknownServer.QueryInterface(&com.IID_IConnectionPointContainer, unsafe.Pointer(&iUnknownContainer))
-	if err != nil {
-		return opcServer, nil
-	}
-	defer func() {
-		if err != nil {
-			iUnknownContainer.Release()
-		}
-	}()
-	container := &com.IConnectionPointContainer{IUnknown: iUnknownContainer}
-	point, err := container.FindConnectionPoint(&IID_IOPCShutdown)
-	if err != nil {
-		return nil, NewOPCWrapperError("container find connect point", err)
-	}
-	defer func() {
-		if err != nil {
-			point.Release()
-		}
-	}()
-	event := NewShutdownEventReceiver()
-	cookie, err := point.Advise((*com.IUnknown)(unsafe.Pointer(event)))
-	if err != nil {
-		return nil, NewOPCWrapperError("point advice", err)
-	}
-
-	opcServer.container = container
-	opcServer.point = point
-	opcServer.event = event
-	opcServer.cookie = cookie
 	return opcServer, nil
 }
 
@@ -476,6 +445,41 @@ func (s *OPCServer) errors(errs []int32) []error {
 
 // RegisterServerShutDown register server shut down event
 func (s *OPCServer) RegisterServerShutDown(ch chan string) error {
+	if s.event == nil {
+		var err error
+		var iUnknownContainer *com.IUnknown
+		var point *com.IConnectionPoint
+		var cookie uint32
+
+		err = s.iServer.IUnknown.QueryInterface(&com.IID_IConnectionPointContainer, unsafe.Pointer(&iUnknownContainer))
+		if err != nil {
+			return NewOPCWrapperError("query interface IConnectionPointContainer", err)
+		}
+		defer func() {
+			if err != nil {
+				iUnknownContainer.Release()
+			}
+		}()
+		container := &com.IConnectionPointContainer{IUnknown: iUnknownContainer}
+		point, err = container.FindConnectionPoint(&IID_IOPCShutdown)
+		if err != nil {
+			return NewOPCWrapperError("container find connect point", err)
+		}
+		defer func() {
+			if err != nil {
+				point.Release()
+			}
+		}()
+		event := NewShutdownEventReceiver()
+		cookie, err = point.Advise((*com.IUnknown)(unsafe.Pointer(event)))
+		if err != nil {
+			return NewOPCWrapperError("point advise", err)
+		}
+		s.container = container
+		s.point = point
+		s.event = event
+		s.cookie = cookie
+	}
 	s.event.AddReceiver(ch)
 	return nil
 }
