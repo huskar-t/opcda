@@ -31,10 +31,7 @@ func CoTaskMemFree(pv unsafe.Pointer) {
 	if pv == nil {
 		return
 	}
-	r0, _, _ := syscall.SyscallN(procCoTaskMemFree.Addr(), uintptr(pv))
-	if int32(r0) < 0 {
-		panic(syscall.Errno(r0))
-	}
+	windows.CoTaskMemFree(pv)
 }
 
 type CLSCTX uint32
