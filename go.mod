@@ -3,8 +3,8 @@ module github.com/huskar-t/opcda
 go 1.20
 
 require (
-	github.com/stretchr/testify v1.8.4
-	golang.org/x/sys v0.16.0
+	github.com/stretchr/testify v1.9.0
+	golang.org/x/sys v0.26.0
 )
 
 require (
