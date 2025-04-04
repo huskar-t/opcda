@@ -73,3 +73,43 @@ const (
 
 	CO_E_CLASSSTRING = 0x800401F3
 )
+
+// authentication level constants
+const (
+	RPC_C_AUTHN_LEVEL_DEFAULT       uint32 = 0
+	RPC_C_AUTHN_LEVEL_NONE          uint32 = 1
+	RPC_C_AUTHN_LEVEL_CONNECT       uint32 = 2
+	RPC_C_AUTHN_LEVEL_CALL          uint32 = 3
+	RPC_C_AUTHN_LEVEL_PKT           uint32 = 4
+	RPC_C_AUTHN_LEVEL_PKT_INTEGRITY uint32 = 5
+	RPC_C_AUTHN_LEVEL_PKT_PRIVACY   uint32 = 6
+)
+
+// impersonation level constants
+const (
+	RPC_C_IMP_LEVEL_DEFAULT     uint32 = 0
+	RPC_C_IMP_LEVEL_ANONYMOUS   uint32 = 1
+	RPC_C_IMP_LEVEL_IDENTIFY    uint32 = 2
+	RPC_C_IMP_LEVEL_IMPERSONATE uint32 = 3
+	RPC_C_IMP_LEVEL_DELEGATE    uint32 = 4
+)
+
+// EOLE_AUTHENTICATION_CAPABILITIES
+const (
+	EOAC_NONE              uint32 = 0
+	EOAC_MUTUAL_AUTH       uint32 = 0x1
+	EOAC_STATIC_CLOAKING   uint32 = 0x20
+	EOAC_DYNAMIC_CLOAKING  uint32 = 0x40
+	EOAC_ANY_AUTHORITY     uint32 = 0x80
+	EOAC_MAKE_FULLSIC      uint32 = 0x100
+	EOAC_DEFAULT           uint32 = 0x800
+	EOAC_SECURE_REFS       uint32 = 0x2
+	EOAC_ACCESS_CONTROL    uint32 = 0x4
+	EOAC_APPID             uint32 = 0x8
+	EOAC_DYNAMIC           uint32 = 0x10
+	EOAC_REQUIRE_FULLSIC   uint32 = 0x200
+	EOAC_AUTO_IMPERSONATE  uint32 = 0x400
+	EOAC_DISABLE_AAA       uint32 = 0x1000
+	EOAC_NO_CUSTOM_MARSHAL uint32 = 0x2000
+	EOAC_RESERVED1         uint32 = 0x4000
+)

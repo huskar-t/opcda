@@ -12,7 +12,7 @@ import (
 var (
 	modOle32                    = windows.NewLazySystemDLL("ole32.dll")
 	procCoCreateInstanceEx      = modOle32.NewProc("CoCreateInstanceEx")
-	procCoTaskMemFree           = modOle32.NewProc("CoTaskMemFree")
+	procCoInitializeSecurity    = modOle32.NewProc("CoInitializeSecurity")
 	modOleaut32                 = windows.NewLazySystemDLL("oleaut32.dll")
 	procVariantClear            = modOleaut32.NewProc("VariantClear")
 	procVariantTimeToSystemTime = modOleaut32.NewProc("VariantTimeToSystemTime")
@@ -236,4 +236,22 @@ func IsEqualGUID(guid1 *windows.GUID, guid2 *windows.GUID) bool {
 		guid1.Data4[5] == guid2.Data4[5] &&
 		guid1.Data4[6] == guid2.Data4[6] &&
 		guid1.Data4[7] == guid2.Data4[7]
+}
+
+func CoInitializeSecurity(authnLevel, impLevel, capabilities uint32) (err error) {
+	cAuthSvc := int32(-1)
+	r0, _, _ := procCoInitializeSecurity.Call(
+		uintptr(0),
+		uintptr(cAuthSvc),
+		uintptr(0),
+		uintptr(0),
+		uintptr(authnLevel),
+		uintptr(impLevel),
+		uintptr(0),
+		uintptr(capabilities),
+		uintptr(0))
+	if r0 != 0 {
+		err = syscall.Errno(r0)
+	}
+	return
 }

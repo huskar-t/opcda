@@ -2,6 +2,7 @@ package opcda
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -26,7 +27,11 @@ func TestMain(m *testing.M) {
 	com.Uninitialize()
 	com.Initialize()
 	defer com.Uninitialize()
-	m.Run()
+	err := com.CoInitializeSecurity(com.RPC_C_AUTHN_LEVEL_NONE, com.RPC_C_IMP_LEVEL_IMPERSONATE, com.EOAC_NONE)
+	if err != nil {
+		panic(err)
+	}
+	os.Exit(m.Run())
 }
 func TestServers(t *testing.T) {
 	serverInfos, err := GetOPCServers(TestHost)
