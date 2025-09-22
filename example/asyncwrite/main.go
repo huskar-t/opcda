@@ -11,7 +11,10 @@ import (
 )
 
 func main() {
-	com.Initialize()
+	err := com.Initialize()
+	if err != nil {
+		panic(err)
+	}
 	defer com.Uninitialize()
 	host := "localhost"
 	progID := "Matrikon.OPC.Simulation.1"

@@ -2,6 +2,7 @@ package com
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"syscall"
 	"unsafe"
@@ -215,9 +216,17 @@ func IsLocal(host string) bool {
 }
 
 // Initialize initialize COM with COINIT_MULTITHREADED
-func Initialize() {
-	windows.CoInitializeEx(0, windows.COINIT_MULTITHREADED)
-	CoInitializeSecurity(RPC_C_AUTHN_LEVEL_NONE, RPC_C_IMP_LEVEL_IMPERSONATE, EOAC_NONE)
+func Initialize() error {
+	err := windows.CoInitializeEx(0, windows.COINIT_MULTITHREADED)
+	if err != nil {
+		return fmt.Errorf("call CoInitializeEx error: %s", err)
+	}
+	err = CoInitializeSecurity(RPC_C_AUTHN_LEVEL_NONE, RPC_C_IMP_LEVEL_IMPERSONATE, EOAC_NONE)
+	if err != nil {
+		Uninitialize()
+		return fmt.Errorf("call CoInitializeSecurity error: %s", err)
+	}
+	return nil
 }
 
 // Uninitialize uninitialize COM

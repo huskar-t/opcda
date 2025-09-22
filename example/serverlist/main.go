@@ -8,7 +8,10 @@ import (
 )
 
 func main() {
-	com.Initialize()
+	err := com.Initialize()
+	if err != nil {
+		panic(err)
+	}
 	defer com.Uninitialize()
 	host := "localhost"
 	serverInfos, err := opcda.GetOPCServers(host)
