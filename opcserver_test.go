@@ -2,6 +2,7 @@ package opcda
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -22,11 +23,17 @@ const TestWriteErrorItem = "Write Error.Int4"
 const TestReadErrorItem = "Write Only.Int4"
 
 func TestMain(m *testing.M) {
-	com.Initialize()
+	err := com.Initialize()
+	if err != nil {
+		panic(err)
+	}
 	com.Uninitialize()
-	com.Initialize()
+	err = com.Initialize()
+	if err != nil {
+		panic(err)
+	}
 	defer com.Uninitialize()
-	m.Run()
+	os.Exit(m.Run())
 }
 func TestServers(t *testing.T) {
 	serverInfos, err := GetOPCServers(TestHost)
