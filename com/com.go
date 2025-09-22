@@ -217,6 +217,7 @@ func IsLocal(host string) bool {
 // Initialize initialize COM with COINIT_MULTITHREADED
 func Initialize() {
 	windows.CoInitializeEx(0, windows.COINIT_MULTITHREADED)
+	CoInitializeSecurity(RPC_C_AUTHN_LEVEL_NONE, RPC_C_IMP_LEVEL_IMPERSONATE, EOAC_NONE)
 }
 
 // Uninitialize uninitialize COM

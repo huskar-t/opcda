@@ -27,10 +27,6 @@ func TestMain(m *testing.M) {
 	com.Uninitialize()
 	com.Initialize()
 	defer com.Uninitialize()
-	err := com.CoInitializeSecurity(com.RPC_C_AUTHN_LEVEL_NONE, com.RPC_C_IMP_LEVEL_IMPERSONATE, com.EOAC_NONE)
-	if err != nil {
-		panic(err)
-	}
 	os.Exit(m.Run())
 }
 func TestServers(t *testing.T) {
