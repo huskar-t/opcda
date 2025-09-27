@@ -38,6 +38,7 @@ func CoTaskMemFree(pv unsafe.Pointer) {
 type CLSCTX uint32
 
 const (
+	CLSCTX_INPROC_SERVER CLSCTX = 0x1
 	CLSCTX_LOCAL_SERVER  CLSCTX = 0x4
 	CLSCTX_REMOTE_SERVER CLSCTX = 0x10
 )
