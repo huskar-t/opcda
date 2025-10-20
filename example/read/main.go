@@ -33,6 +33,9 @@ func main() {
 		"Random.UInt2",
 		"Random.UInt4",
 		"Random.UInt8",
+		"Read Error.UInt4",
+		// Errors on purpose to show error handling
+		"Write Only.UInt4",
 		"Bucket Brigade.Real4",
 	}
 	server, err := opcda.Connect(progID, host)
@@ -64,20 +67,25 @@ func main() {
 	for i, item := range itemList {
 		serverHandles[i] = item.GetServerHandle()
 	}
-	status, err := group.SyncRead(opcda.OPC_DS_CACHE, serverHandles)
+	status, resultErrs, err := group.SyncRead(opcda.OPC_DS_CACHE, serverHandles)
 	if err != nil {
 		log.Fatalf("sync read failed: %s\n", err)
 	}
 	for i, item := range status {
-		log.Printf("%s:\t%s\t%d\t%v\n", tags[i], item.Timestamp, item.Quality, item.Value)
+		if resultErrs[i] == nil {
+			log.Printf("%s:\t%s\t%d\t%v\n", tags[i], item.Timestamp, item.Quality, item.Value)
+		} else {
+			log.Printf("%s: error %v", tags[i], resultErrs[i])
+		}
 	}
 	// item read
 	log.Println("item read")
 	for i, item := range itemList {
 		value, quality, timestamp, err := item.Read(opcda.OPC_DS_CACHE)
 		if err != nil {
-			log.Fatalf("read item failed: %s\n", err)
+			log.Printf("%s: error %v\n", tags[i], err)
+		} else {
+			log.Printf("%s:\t%s\t%d\t%v\n", tags[i], timestamp, quality, value)
 		}
-		log.Printf("%s:\t%s\t%d\t%v\n", tags[i], timestamp, quality, value)
 	}
 }
