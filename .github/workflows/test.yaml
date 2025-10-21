@@ -34,7 +34,7 @@ jobs:
         run: |
           $absPath = "${{ github.workspace }}\.github\workflows\alias.xml"
           Write-Host "Absolute directory path: $absPath"
-          echo "::set-output name=abs_path::$absPath"
+          echo "abs_path=$absPath" >> $Env:GITHUB_OUTPUT
 
       - name: install da simulator
         run: |
@@ -51,7 +51,7 @@ jobs:
       - name: Test OPCDA
         env:
           GOARCH: ${{ matrix.arch }}
-        run: go test -v --count=1 -coverprofile='coverage.txt' -covermode=atomic ./...
+        run: go test -coverpkg=./... -v --count=1 -coverprofile='coverage.txt' -covermode=atomic ./...
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -59,3 +59,27 @@ jobs:
           files: ./coverage.txt
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+
+      - name: Test example
+        env:
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $examples = @(
+            './example/asyncread/main.go',
+            './example/asyncwrite/main.go',
+            './example/browse/main.go',
+            './example/read/main.go',
+            './example/serverlist/main.go',
+            './example/subscribe/main.go',
+            './example/write/main.go'
+          )
+          foreach ($ex in $examples) {
+            Write-Host "Running $ex"
+            go run $ex
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Example failed: $ex (exit code $LASTEXITCODE)"
+              exit $LASTEXITCODE
+            }
+          }
+
