@@ -181,8 +181,10 @@ func TestOPCGroup_SyncRead(t *testing.T) {
 	item.SetIsActive(true)
 	for i := 0; i < 5; i++ {
 		time.Sleep(time.Second)
-		status, err := group.SyncRead(OPC_DS_CACHE, []uint32{item.GetServerHandle()})
+		status, resultErrs, err := group.SyncRead(OPC_DS_CACHE, []uint32{item.GetServerHandle()})
 		assert.NoError(t, err)
+		assert.Equal(t, 1, len(resultErrs))
+		assert.NoError(t, resultErrs[0])
 		t.Log(status[0])
 		assert.Equal(t, 1, len(status))
 		if status[0].Quality != uint16(192) {
@@ -216,8 +218,11 @@ func TestOPCGroup_ReadError(t *testing.T) {
 	assert.Equal(t, items, items2)
 	item, err := items.AddItem(TestReadErrorItem)
 	assert.NoError(t, err)
-	_, err = group.SyncRead(OPC_DS_CACHE, []uint32{item.GetServerHandle()})
-	assert.Error(t, err)
+	_, resultErrs, err := group.SyncRead(OPC_DS_CACHE, []uint32{item.GetServerHandle()})
+	// Read operation itself should succeed, but the individual read should fail
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(resultErrs))
+	assert.Error(t, resultErrs[0])
 }
 
 func TestOPCGroup_SyncWrite(t *testing.T) {

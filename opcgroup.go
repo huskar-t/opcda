@@ -2,7 +2,6 @@ package opcda
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -192,22 +191,21 @@ func (g *OPCGroup) OPCItems() *OPCItems {
 	return g.items
 }
 
-// SyncRead This function reads the value, quality and timestamp information for one or more items in a group.
-func (g *OPCGroup) SyncRead(source com.OPCDATASOURCE, serverHandles []uint32) ([]*com.ItemState, error) {
+// SyncRead reads the value, quality and timestamp information for one or more items in a group.
+func (g *OPCGroup) SyncRead(source com.OPCDATASOURCE, serverHandles []uint32) ([]*com.ItemState, []error, error) {
 	values, errList, err := g.syncIO.Read(source, serverHandles)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	var errs []error
-	for _, e := range errList {
+
+	resultErrs := make([]error, len(serverHandles))
+	for i, e := range errList {
 		if e < 0 {
-			errs = append(errs, g.getError(e))
+			resultErrs[i] = g.getError(e)
 		}
 	}
-	if len(errs) != 0 {
-		return nil, errors.Join(errs...)
-	}
-	return values, nil
+
+	return values, resultErrs, nil
 }
 
 // SyncWrite Writes values to one or more items in a group
