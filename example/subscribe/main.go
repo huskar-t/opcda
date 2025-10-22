@@ -57,6 +57,8 @@ func main() {
 	// Wait for the OPC server to be ready
 	time.Sleep(time.Second * 2)
 	ch := make(chan *opcda.DataChangeCallBackData, 100)
+	done := make(chan struct{})
+	timer := time.NewTimer(time.Second * 3)
 	go func() {
 		for {
 			select {
@@ -71,6 +73,9 @@ func main() {
 					}
 					log.Printf("item %s\ttimestamp: %s\tquality: %d\tvalue: %v\n", tag, data.TimeStamps[i], data.Qualities[i], data.Values[i])
 				}
+			case <-timer.C:
+				log.Printf("stop\n")
+				close(done)
 			}
 		}
 	}()
@@ -78,5 +83,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("register data change failed: %s\n", err)
 	}
-	select {}
+	<-done
 }

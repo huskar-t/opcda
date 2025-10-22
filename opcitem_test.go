@@ -328,18 +328,26 @@ func TestOPCItemWrite(t *testing.T) {
 	}
 	time.Sleep(time.Second * 2)
 	for i, item := range itemList {
-		err := item.Write(values[i])
-		if err != nil {
-			t.Fatalf("write item %s failed: %s\n", tags[i], err)
-		}
-	}
-	time.Sleep(time.Second)
-	for i, item := range itemList {
-		value, quality, timestamp, err := item.Read(OPC_DS_CACHE)
-		if err != nil {
-			t.Fatalf("read item failed: %s\n", err)
+		var value interface{}
+		var quality uint16
+		for j := 0; j < 50; j++ {
+			err := item.Write(values[i])
+			if err != nil {
+				t.Fatalf("write item %s failed: %s\n", tags[i], err)
+			}
+			var timestamp time.Time
+			value, quality, timestamp, err = item.Read(OPC_DS_CACHE)
+			t.Logf("%s:\t%s\t%d\t%v\n", tags[i], timestamp, quality, value)
+			if err != nil {
+				t.Fatalf("read item failed: %s\n", err)
+			}
+			if !assert.ObjectsAreEqual(values[i], value) {
+				time.Sleep(time.Millisecond * 100)
+				continue
+			} else {
+				break
+			}
 		}
 		assert.Equal(t, values[i], value)
-		t.Logf("%s:\t%s\t%d\t%v\n", tags[i], timestamp, quality, value)
 	}
 }
