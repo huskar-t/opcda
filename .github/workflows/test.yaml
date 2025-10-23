@@ -51,7 +51,7 @@ jobs:
       - name: Test OPCDA
         env:
           GOARCH: ${{ matrix.arch }}
-        run: go test -coverpkg=./... -v --count=1 -coverprofile='coverage.txt' -covermode=atomic ./...
+        run: go test -coverpkg="./..." -v --count=1 -coverprofile='coverage.txt' -covermode=atomic ./...
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
