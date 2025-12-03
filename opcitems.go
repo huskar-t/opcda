@@ -155,15 +155,29 @@ func (is *OPCItems) AddItems(tags []string) ([]*OPCItem, []error, error) {
 func (is *OPCItems) Remove(serverHandles []uint32) {
 	is.Lock()
 	defer is.Unlock()
-	for _, v := range serverHandles {
-		for j, w := range is.items {
-			if w.serverHandle == v {
-				w.Release()
-				w.itemMgt.RemoveItems([]uint32{v})
-				is.items = append(is.items[:j], is.items[j+1:]...)
-				break
-			}
+	toDelete := make(map[uint32]struct{}, len(serverHandles))
+	for _, h := range serverHandles {
+		toDelete[h] = struct{}{}
+	}
+	var newItems []*OPCItem
+	var removedItems []*OPCItem
+	var removedHandles []uint32
+	for _, item := range is.items {
+		if _, ok := toDelete[item.serverHandle]; ok {
+			removedItems = append(removedItems, item)
+			removedHandles = append(removedHandles, item.serverHandle)
+			continue
 		}
+		newItems = append(newItems, item)
+	}
+
+	is.items = newItems
+
+	if len(removedHandles) > 0 {
+		is.itemMgt.RemoveItems(removedHandles)
+	}
+	for _, it := range removedItems {
+		it.Release()
 	}
 }
 
