@@ -434,7 +434,8 @@ func TestOPCServer_RegisterServerShutDown(t *testing.T) {
 	assert.NoError(t, err)
 	defer func() {
 		err = server.Disconnect()
-		assert.NoError(t, err)
+		// error expected here because service is stopped in the test
+		assert.Error(t, err)
 	}()
 	ch := make(chan string, 1)
 	err = server.RegisterServerShutDown(ch)
