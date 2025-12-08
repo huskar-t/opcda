@@ -342,7 +342,7 @@ func TestOPCItemWrite(t *testing.T) {
 				t.Fatalf("read item failed: %s\n", err)
 			}
 			if !assert.ObjectsAreEqual(values[i], value) {
-				time.Sleep(time.Millisecond * 100)
+				time.Sleep(time.Millisecond * 500)
 				continue
 			} else {
 				break
