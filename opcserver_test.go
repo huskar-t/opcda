@@ -17,9 +17,9 @@ import (
 const TestProgID = "Matrikon.OPC.Simulation.1"
 const TestHost = "localhost"
 const TestServiceName = "MatrikonOPC Server for Simulation and Testing"
-const TestBoolItem = "Bucket Brigade.Boolean"
-const TestFloatItem = "Bucket Brigade.Real4"
-const TestWriteItem = "Bucket Brigade.Int4"
+const TestBoolItem = "Random.Boolean"
+const TestFloatItem = "Random.Real4"
+const TestWriteItem = "Random.Int4"
 const TestWriteErrorItem = "Write Error.Int4"
 const TestReadErrorItem = "Write Only.Int4"
 
@@ -99,7 +99,10 @@ func TestServersFromOPCMixed(t *testing.T) {
 func TestOpcServer_GetLocaleID(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	localID, err := server.GetLocaleID()
 	assert.NoError(t, err)
 	assert.Equal(t, uint32(0x800), localID)
@@ -108,7 +111,10 @@ func TestOpcServer_GetLocaleID(t *testing.T) {
 func TestOpcServer_GetStartTime(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	startTime, err := server.GetStartTime()
 	assert.NoError(t, err)
 	assert.False(t, startTime.IsZero())
@@ -118,7 +124,10 @@ func TestOpcServer_GetStartTime(t *testing.T) {
 func TestOpcServer_GetCurrentTime(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	currentTime, err := server.GetCurrentTime()
 	assert.NoError(t, err)
 	assert.False(t, currentTime.IsZero())
@@ -128,7 +137,10 @@ func TestOpcServer_GetCurrentTime(t *testing.T) {
 func TestOpcServer_GetLastUpdateTime(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	lastUpdateTime, err := server.GetLastUpdateTime()
 	assert.NoError(t, err)
 	assert.False(t, lastUpdateTime.IsZero())
@@ -138,7 +150,10 @@ func TestOpcServer_GetLastUpdateTime(t *testing.T) {
 func TestOpcServer_GetMajorVersion(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	majorVersion, err := server.GetMajorVersion()
 	assert.NoError(t, err)
 	assert.GreaterOrEqual(t, majorVersion, uint16(0))
@@ -148,7 +163,10 @@ func TestOpcServer_GetMajorVersion(t *testing.T) {
 func TestOpcServer_GetMinorVersion(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	minorVersion, err := server.GetMinorVersion()
 	assert.NoError(t, err)
 	assert.GreaterOrEqual(t, minorVersion, uint16(0))
@@ -158,7 +176,10 @@ func TestOpcServer_GetMinorVersion(t *testing.T) {
 func TestOpcServer_GetBuildNumber(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	buildNumber, err := server.GetBuildNumber()
 	assert.NoError(t, err)
 	assert.GreaterOrEqual(t, buildNumber, uint16(0))
@@ -168,7 +189,10 @@ func TestOpcServer_GetBuildNumber(t *testing.T) {
 func TestOpcServer_GetVendorInfo(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	vendorInfo, err := server.GetVendorInfo()
 	assert.NoError(t, err)
 	assert.NotEmpty(t, vendorInfo)
@@ -178,7 +202,10 @@ func TestOpcServer_GetVendorInfo(t *testing.T) {
 func TestOpcServer_GetServerState(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	status, err := server.GetServerState()
 	assert.NoError(t, err)
 	assert.Equal(t, OPC_STATUS_RUNNING, status)
@@ -189,7 +216,10 @@ func TestOpcServer_GetServerState(t *testing.T) {
 func TestOpcServer_SetLocaleID(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	ids, err := server.QueryAvailableLocaleIDs()
 	assert.NoError(t, err)
 	assert.Greater(t, len(ids), 0)
@@ -203,7 +233,10 @@ func TestOpcServer_SetLocaleID(t *testing.T) {
 func TestOpcServer_GetBandwidth(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	bandwidth, err := server.GetBandwidth()
 	assert.NoError(t, err)
 	assert.GreaterOrEqual(t, bandwidth, uint32(0))
@@ -213,7 +246,10 @@ func TestOpcServer_GetBandwidth(t *testing.T) {
 func TestOpcServer_OPCGroups(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 }
@@ -222,7 +258,10 @@ func TestOpcServer_OPCGroups(t *testing.T) {
 func TestOpcServer_GetServerName(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	serverName := server.GetServerName()
 	assert.Equal(t, TestProgID, serverName)
 }
@@ -231,7 +270,10 @@ func TestOpcServer_GetServerName(t *testing.T) {
 func TestOpcServer_GetServerNode(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	serverNode := server.GetServerNode()
 	assert.Equal(t, TestHost, serverNode)
 }
@@ -240,7 +282,10 @@ func TestOpcServer_GetServerNode(t *testing.T) {
 func TestOpcServer_GetClientName(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	err = server.SetClientName("test")
 	assert.NoError(t, err)
 	clientName := server.GetClientName()
@@ -250,7 +295,10 @@ func TestOpcServer_GetClientName(t *testing.T) {
 func TestOpcServer_QueryAvailableProperties(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	ppPropertyIDs, ppDescriptions, ppvtDataTypes, err := server.QueryAvailableProperties(TestWriteItem)
 	assert.NoError(t, err)
 	assert.Greater(t, len(ppPropertyIDs), 0)
@@ -263,7 +311,10 @@ func TestOpcServer_QueryAvailableProperties(t *testing.T) {
 func TestOpcServer_GetItemProperties(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	ppPropertyIDs, ppDescriptions, ppvtDataTypes, err := server.QueryAvailableProperties(TestWriteItem)
 	assert.NoError(t, err)
 	assert.Greater(t, len(ppPropertyIDs), 0)
@@ -285,7 +336,10 @@ func TestOpcServer_GetItemProperties(t *testing.T) {
 func TestOpcServer_LookupItemIDs(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	ppPropertyIDs, ppDescriptions, ppvtDataTypes, err := server.QueryAvailableProperties(TestBoolItem)
 	assert.NoError(t, err)
 	assert.Equal(t, len(ppPropertyIDs), 14)
@@ -316,7 +370,10 @@ func TestOpcServer_LookupItemIDs(t *testing.T) {
 func TestOPCGroup_AddItems(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test")
@@ -342,7 +399,10 @@ func TestOPCGroup_AddItems(t *testing.T) {
 func TestOPCGroup_AddItems_Success(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test")
@@ -372,44 +432,43 @@ func TestOPCGroup_AddItems_Success(t *testing.T) {
 func TestOPCServer_RegisterServerShutDown(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	ch := make(chan string, 1)
 	err = server.RegisterServerShutDown(ch)
 	assert.NoError(t, err)
 	done := make(chan struct{})
 	go func() {
 		manager, err := mgr.Connect()
-		if err != nil {
-			t.Fatalf("Failed to connect to service manager: %v", err)
-		}
-		defer manager.Disconnect()
+		assert.NoError(t, err)
+		defer func() {
+			err = manager.Disconnect()
+			assert.NoError(t, err)
+		}()
 		serviceObj, err := manager.OpenService(TestServiceName)
-		if err != nil {
-			t.Fatalf("Failed to open service %s: %v", TestServiceName, err)
-		}
-		defer serviceObj.Close()
+		assert.NoError(t, err)
+		defer func() {
+			err = serviceObj.Close()
+			assert.NoError(t, err)
+		}()
 		defer func() {
 			for i := 0; i < 10; i++ {
 				time.Sleep(time.Second)
 				status, err := serviceObj.Query()
-				if err != nil {
-					t.Fatalf("Failed to query service %s: %v", TestServiceName, err)
-				}
+				assert.NoError(t, err)
 				t.Log(status.State)
 				if status.State == svc.Stopped {
 					err = serviceObj.Start()
-					if err != nil {
-						t.Fatalf("Failed to start service %s: %v", TestServiceName, err)
-					}
+					assert.NoError(t, err)
 					break
 				}
 			}
 			close(done)
 		}()
 		_, err = serviceObj.Control(svc.Stop)
-		if err != nil {
-			t.Fatalf("Failed to stop service %s: %v", TestServiceName, err)
-		}
+		assert.NoError(t, err)
 
 		t.Logf("Service %s stopped", TestServiceName)
 	}()

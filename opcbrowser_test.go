@@ -12,7 +12,10 @@ import (
 func TestOPCBrowser(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 
 	browser, err := server.CreateBrowser()
 	if err != nil {
