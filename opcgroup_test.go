@@ -277,19 +277,19 @@ func TestOPCGroup_SyncWrite(t *testing.T) {
 	ch := make(chan *DataChangeCallBackData, 1)
 	err = group.RegisterDataChange(ch)
 	assert.NoError(t, err)
-	errs, err := group.SyncWrite([]uint32{item.GetServerHandle()}, []interface{}{int32(11)})
-	assert.NoError(t, err)
-	for _, err := range errs {
-		assert.NoError(t, err)
-	}
 	var value interface{}
 	for i := 0; i < 5; i++ {
-		time.Sleep(time.Second)
+		errs, err := group.SyncWrite([]uint32{item.GetServerHandle()}, []interface{}{int32(11)})
+		assert.NoError(t, err)
+		for _, err := range errs {
+			assert.NoError(t, err)
+		}
 		value, _, _, err = item.Read(OPC_DS_CACHE)
 		assert.NoError(t, err)
 		if value == int32(11) {
 			break
 		}
+		time.Sleep(time.Second)
 	}
 	assert.Equal(t, int32(11), value)
 	timeout := time.NewTimer(time.Second * 5)

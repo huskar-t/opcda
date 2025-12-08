@@ -17,9 +17,9 @@ import (
 const TestProgID = "Matrikon.OPC.Simulation.1"
 const TestHost = "localhost"
 const TestServiceName = "MatrikonOPC Server for Simulation and Testing"
-const TestBoolItem = "Random.Boolean"
-const TestFloatItem = "Random.Real4"
-const TestWriteItem = "Random.Int4"
+const TestBoolItem = ".Boolean"
+const TestFloatItem = "Real4"
+const TestWriteItem = "Int4"
 const TestWriteErrorItem = "Write Error.Int4"
 const TestReadErrorItem = "Write Only.Int4"
 
