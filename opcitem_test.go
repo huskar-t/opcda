@@ -11,7 +11,10 @@ import (
 func TestOPCItem_GetParent(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test")
@@ -19,7 +22,7 @@ func TestOPCItem_GetParent(t *testing.T) {
 	assert.NotNil(t, group)
 	assert.Equal(t, "test", group.GetName())
 	items := group.OPCItems()
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestPropertyItem)
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
 	assert.Equal(t, items, item.GetParent())
@@ -28,30 +31,36 @@ func TestOPCItem_GetParent(t *testing.T) {
 func TestOPCItem_GetItemID(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test")
 	assert.NoError(t, err)
 	assert.NotNil(t, group)
 	items := group.OPCItems()
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestPropertyItem)
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
-	assert.Equal(t, TestWriteItem, item.GetItemID())
+	assert.Equal(t, TestPropertyItem, item.GetItemID())
 }
 
 func TestOPCItem_GetAccessPath(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test")
 	assert.NoError(t, err)
 	assert.NotNil(t, group)
 	items := group.OPCItems()
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestPropertyItem)
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
 	assert.Equal(t, "", item.GetAccessPath())
@@ -60,14 +69,17 @@ func TestOPCItem_GetAccessPath(t *testing.T) {
 func TestOPCItem_GetIsActive(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test")
 	assert.NoError(t, err)
 	assert.NotNil(t, group)
 	items := group.OPCItems()
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestPropertyItem)
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
 	assert.Equal(t, true, item.GetIsActive())
@@ -76,14 +88,17 @@ func TestOPCItem_GetIsActive(t *testing.T) {
 func TestOPCItem_GetAccessRights(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test")
 	assert.NoError(t, err)
 	assert.NotNil(t, group)
 	items := group.OPCItems()
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestPropertyItem)
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
 	assert.Equal(t, uint32(3), item.GetAccessRights())
@@ -92,14 +107,17 @@ func TestOPCItem_GetAccessRights(t *testing.T) {
 func TestOPCItem_GetEUType(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test")
 	assert.NoError(t, err)
 	assert.NotNil(t, group)
 	items := group.OPCItems()
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestPropertyItem)
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
 	euType, err := item.GetEUType()
@@ -110,14 +128,17 @@ func TestOPCItem_GetEUType(t *testing.T) {
 func TestOPCItem_GetEUInfo(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test")
 	assert.NoError(t, err)
 	assert.NotNil(t, group)
 	items := group.OPCItems()
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestPropertyItem)
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
 	euInfo, err := item.GetEUInfo()
@@ -128,14 +149,17 @@ func TestOPCItem_GetEUInfo(t *testing.T) {
 func TestOPCItem_GetCanonicalDataType(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test")
 	assert.NoError(t, err)
 	assert.NotNil(t, group)
 	items := group.OPCItems()
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestPropertyItem)
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
 	vt := item.GetCanonicalDataType()
@@ -146,7 +170,10 @@ func TestOPCItem_GetCanonicalDataType(t *testing.T) {
 func TestOPCItem_WriteError(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test_item_write_error")
@@ -171,7 +198,10 @@ func TestOPCItem_WriteError(t *testing.T) {
 func TestOPCItem_ReadError(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test_item_read_error")
@@ -207,7 +237,10 @@ func TestOPCItemRead(t *testing.T) {
 	}
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test_item_read")
@@ -310,7 +343,10 @@ func TestOPCItemWrite(t *testing.T) {
 	}
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test_item_write")
@@ -342,7 +378,7 @@ func TestOPCItemWrite(t *testing.T) {
 				t.Fatalf("read item failed: %s\n", err)
 			}
 			if !assert.ObjectsAreEqual(values[i], value) {
-				time.Sleep(time.Millisecond * 100)
+				time.Sleep(time.Millisecond * 500)
 				continue
 			} else {
 				break

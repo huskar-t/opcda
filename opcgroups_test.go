@@ -10,7 +10,10 @@ import (
 func TestOPCGroups_Parent(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	parent := groups.GetParent()
@@ -21,7 +24,10 @@ func TestOPCGroups_Parent(t *testing.T) {
 func TestOPCGroups_GetDefaultGroupIsActive(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	isActive := groups.GetDefaultGroupIsActive()
@@ -32,7 +38,10 @@ func TestOPCGroups_GetDefaultGroupIsActive(t *testing.T) {
 func TestOPCGroups_SetDefaultGroupIsActive(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	groups.SetDefaultGroupIsActive(false)
@@ -46,7 +55,10 @@ func TestOPCGroups_SetDefaultGroupIsActive(t *testing.T) {
 func TestOPCGroups_GetDefaultGroupUpdateRate(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	updateRate := groups.GetDefaultGroupUpdateRate()
@@ -58,7 +70,10 @@ func TestOPCGroups_GetDefaultGroupUpdateRate(t *testing.T) {
 func TestOPCGroups_SetDefaultGroupUpdateRate(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	groups.SetDefaultGroupUpdateRate(2000)
@@ -72,7 +87,10 @@ func TestOPCGroups_SetDefaultGroupUpdateRate(t *testing.T) {
 func TestOPCGroups_GetDefaultGroupDeadband(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	deadband := groups.GetDefaultGroupDeadband()
@@ -84,7 +102,10 @@ func TestOPCGroups_GetDefaultGroupDeadband(t *testing.T) {
 func TestOPCGroups_SetDefaultGroupDeadband(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	groups.SetDefaultGroupDeadband(1.0)
@@ -98,7 +119,10 @@ func TestOPCGroups_SetDefaultGroupDeadband(t *testing.T) {
 func TestOPCGroups_GetDefaultGroupLocaleID(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	localeID := groups.GetDefaultGroupLocaleID()
@@ -110,7 +134,10 @@ func TestOPCGroups_GetDefaultGroupLocaleID(t *testing.T) {
 func TestOPCGroups_SetDefaultGroupLocaleID(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	groups.SetDefaultGroupLocaleID(0x0401)
 	assert.NoError(t, err)
@@ -123,7 +150,10 @@ func TestOPCGroups_SetDefaultGroupLocaleID(t *testing.T) {
 func TestOPCGroups_GetDefaultGroupTimeBias(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 
 	assert.NotNil(t, groups)
@@ -136,7 +166,10 @@ func TestOPCGroups_GetDefaultGroupTimeBias(t *testing.T) {
 func TestOPCGroups_SetDefaultGroupTimeBias(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 
 	assert.NotNil(t, groups)
@@ -151,7 +184,10 @@ func TestOPCGroups_SetDefaultGroupTimeBias(t *testing.T) {
 func TestOPCGroups_GetCount(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 
 	assert.NotNil(t, groups)
@@ -163,7 +199,10 @@ func TestOPCGroups_GetCount(t *testing.T) {
 func TestOPCGroups_AddGroup(t *testing.T) {
 	server, err := Connect(TestProgID, TestHost)
 	assert.NoError(t, err)
-	defer server.Disconnect()
+	defer func() {
+		err = server.Disconnect()
+		assert.NoError(t, err)
+	}()
 	groups := server.GetOPCGroups()
 	assert.NotNil(t, groups)
 	group, err := groups.Add("test")

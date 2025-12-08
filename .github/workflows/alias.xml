@@ -77,5 +77,25 @@
             <Scaling enabled="0" type="0" />
             <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
         </PSTAlias>
+        <PSTAlias name="AsyncInt4" itemPath="" type="3" dataType="3">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="SyncInt4" itemPath="" type="3" dataType="3">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="PropInt4" itemPath="" type="3" dataType="3">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="Boolean" itemPath="" type="3" dataType="11">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="Real4" itemPath="" type="3" dataType="4">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
     </PSTAliasGroup>
 </Matrikon.OPC.Simulation>
