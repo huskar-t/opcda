@@ -3,6 +3,7 @@ package opcda
 import (
 	"fmt"
 	"os"
+	"sort"
 	"testing"
 	"time"
 
@@ -39,7 +40,60 @@ func TestServers(t *testing.T) {
 	serverInfos, err := GetOPCServers(TestHost)
 	assert.NoError(t, err)
 	assert.Greater(t, len(serverInfos), 0)
-	t.Log(serverInfos[0].ProgID)
+	for i := 0; i < len(serverInfos); i++ {
+		if serverInfos[i].ProgID == TestProgID {
+			return
+		}
+	}
+	t.Fatalf("not found progID %s", TestProgID)
+}
+
+func TestServersFromOpcV1(t *testing.T) {
+	serverInfos, err := getServersFromOpcServerListV1(TestHost)
+	assert.NoError(t, err)
+	assert.Greater(t, len(serverInfos), 0)
+	for i := 0; i < len(serverInfos); i++ {
+		if serverInfos[i].ProgID == TestProgID {
+			return
+		}
+	}
+	t.Fatalf("not found progID %s", TestProgID)
+}
+
+func TestServersFromOpcV2(t *testing.T) {
+	serverInfos, err := getServersFromOpcServerListV2(TestHost)
+	assert.NoError(t, err)
+	assert.Greater(t, len(serverInfos), 0)
+	for i := 0; i < len(serverInfos); i++ {
+		if serverInfos[i].ProgID == TestProgID {
+			return
+		}
+	}
+	t.Fatalf("not found progID %s", TestProgID)
+}
+
+func TestServersFromOPCMixed(t *testing.T) {
+	serverInfosV1, err := getServersFromOpcServerListV1(TestHost)
+	assert.NoError(t, err)
+	assert.Greater(t, len(serverInfosV1), 0)
+	serverInfosV2, err := getServersFromOpcServerListV2(TestHost)
+	assert.NoError(t, err)
+	assert.Greater(t, len(serverInfosV2), 0)
+	assert.Equal(t, len(serverInfosV1), len(serverInfosV2))
+
+	sort.Slice(serverInfosV1, func(i, j int) bool {
+		return serverInfosV1[i].ProgID < serverInfosV1[j].ProgID
+	})
+	sort.Slice(serverInfosV2, func(i, j int) bool {
+		return serverInfosV2[i].ProgID < serverInfosV2[j].ProgID
+	})
+	for i := 0; i < len(serverInfosV1); i++ {
+		assert.Equal(t, serverInfosV1[i].ProgID, serverInfosV2[i].ProgID)
+		assert.Equal(t, serverInfosV1[i].ClsStr, serverInfosV2[i].ClsStr)
+		assert.Equal(t, serverInfosV1[i].ClsID, serverInfosV2[i].ClsID)
+		assert.Empty(t, serverInfosV1[i].VerIndProgID)
+		assert.NotEmpty(t, serverInfosV2[i].VerIndProgID)
+	}
 }
 
 func TestOpcServer_GetLocaleID(t *testing.T) {
@@ -475,11 +529,69 @@ func Test_getClsIDFromServerList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getClsIDFromServerList(tt.args.progID, tt.args.node, tt.args.location)
-			if !tt.wantErr(t, err, fmt.Sprintf("getClsIDFromServerList(%v, %v, %v)", tt.args.progID, tt.args.node, tt.args.location)) {
+			got, err := getClsIDFromServerListV2(tt.args.progID, tt.args.node, tt.args.location)
+			if !tt.wantErr(t, err, fmt.Sprintf("getClsIDFromServerListV2(%v, %v, %v)", tt.args.progID, tt.args.node, tt.args.location)) {
 				return
 			}
-			assert.Equalf(t, tt.want, got, "getClsIDFromServerList(%v, %v, %v)", tt.args.progID, tt.args.node, tt.args.location)
+			assert.Equalf(t, tt.want, got, "getClsIDFromServerListV2(%v, %v, %v)", tt.args.progID, tt.args.node, tt.args.location)
+		})
+	}
+}
+
+func Test_getClsIDFromServerListV1(t *testing.T) {
+	id, err := windows.GUIDFromString(TestProgID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	type args struct {
+		progID   string
+		node     string
+		location com.CLSCTX
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *windows.GUID
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "Test with valid progID and node",
+			args: args{
+				progID:   TestProgID,
+				node:     TestHost,
+				location: com.CLSCTX_LOCAL_SERVER,
+			},
+			want:    &id,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Test with invalid progID",
+			args: args{
+				progID:   "InvalidProgID",
+				node:     TestHost,
+				location: com.CLSCTX_LOCAL_SERVER,
+			},
+			want:    nil,
+			wantErr: assert.Error,
+		},
+		{
+			name: "Test with invalid node",
+			args: args{
+				progID:   TestProgID,
+				node:     "InvalidNode",
+				location: com.CLSCTX_REMOTE_SERVER,
+			},
+			want:    nil,
+			wantErr: assert.Error,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getClsIDFromServerListV1(tt.args.progID, tt.args.node, tt.args.location)
+			if !tt.wantErr(t, err, fmt.Sprintf("getClsIDFromServerListV1(%v, %v, %v)", tt.args.progID, tt.args.node, tt.args.location)) {
+				return
+			}
+			assert.Equalf(t, tt.want, got, "getClsIDFromServerListV1(%v, %v, %v)", tt.args.progID, tt.args.node, tt.args.location)
 		})
 	}
 }

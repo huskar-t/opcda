@@ -1,6 +1,7 @@
 package opcda
 
 import (
+	"errors"
 	"fmt"
 	"time"
 	"unsafe"
@@ -89,26 +90,50 @@ func getClsID(progID, node string, location com.CLSCTX) (clsid *windows.GUID, er
 		}
 		return &id, nil
 	} else {
+		var errorList []error
 		// try get clsid from server list
-		clsid, err = getClsIDFromServerList(progID, node, location)
-		if err != nil {
-			// try get clsid from windows reg
-			clsid, err = getClsIDFromReg(progID, node)
-			if err != nil {
-				return nil, NewOPCWrapperError("getClsIDFromReg", err)
-			}
+		clsid, err = getClsIDFromServerListV2(progID, node, location)
+		if err == nil {
+			return clsid, nil
 		}
-		return clsid, nil
+		errorList = append(errorList, fmt.Errorf("get clsid from server list v2 error: %v", err))
+		// try v1
+		clsid, err = getClsIDFromServerListV1(progID, node, location)
+		if err == nil {
+			return clsid, nil
+		}
+		errorList = append(errorList, fmt.Errorf("get clsid from server list v1 error: %v", err))
+		// try get clsid from windows reg
+		clsid, err = getClsIDFromReg(progID, node)
+		if err == nil {
+			return clsid, nil
+		}
+		errorList = append(errorList, fmt.Errorf("get clsid from reg error: %v", err))
+		return nil, errors.Join(errorList...)
 	}
 }
 
-func getClsIDFromServerList(progID, node string, location com.CLSCTX) (*windows.GUID, error) {
+func getClsIDFromServerListV2(progID, node string, location com.CLSCTX) (*windows.GUID, error) {
 	iCatInfo, err := com.MakeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList2)
 	if err != nil {
 		return nil, err
 	}
 	defer iCatInfo.Release()
 	sl := &com.IOPCServerList2{IUnknown: iCatInfo}
+	clsid, err := sl.CLSIDFromProgID(progID)
+	if err != nil {
+		return nil, err
+	}
+	return clsid, nil
+}
+
+func getClsIDFromServerListV1(progID, node string, location com.CLSCTX) (*windows.GUID, error) {
+	iCatInfo, err := com.MakeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList)
+	if err != nil {
+		return nil, err
+	}
+	defer iCatInfo.Release()
+	sl := &com.IOPCServerList{IUnknown: iCatInfo}
 	clsid, err := sl.CLSIDFromProgID(progID)
 	if err != nil {
 		return nil, err
@@ -157,28 +182,42 @@ type ServerInfo struct {
 
 // GetOPCServers get OPC servers from node
 func GetOPCServers(node string) ([]*ServerInfo, error) {
-	result, err := getServersFromOpcServerList(node)
-	if err != nil {
-		return getServersFromReg(node)
+	var errorList []error
+	result, err := getServersFromOpcServerListV2(node)
+	if err == nil {
+		return result, nil
 	}
-	return result, nil
+	errorList = append(errorList, fmt.Errorf("get servers from opc server list v2 error: %v", err))
+	// try v1
+	result, err = getServersFromOpcServerListV1(node)
+	if err == nil {
+		return result, nil
+	}
+	errorList = append(errorList, fmt.Errorf("get servers from opc server list v1 error: %v", err))
+	// try windows reg
+	result, err = getServersFromReg(node)
+	if err == nil {
+		return result, nil
+	}
+	errorList = append(errorList, fmt.Errorf("get servers from reg error: %v", err))
+	return nil, errors.Join(errorList...)
 }
 
-func getServersFromOpcServerList(node string) ([]*ServerInfo, error) {
+func getServersFromOpcServerListV2(node string) ([]*ServerInfo, error) {
 	location := com.CLSCTX_LOCAL_SERVER
 	if !com.IsLocal(node) {
 		location = com.CLSCTX_REMOTE_SERVER
 	}
 	iCatInfo, err := com.MakeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList2)
 	if err != nil {
-		return nil, NewOPCWrapperError("make com object IOPCServerList2", err)
+		return nil, NewOPCWrapperError("make com object IOPCServerListV2", err)
 	}
 	cids := []windows.GUID{IID_CATID_OPCDAServer10, IID_CATID_OPCDAServer20}
 	defer iCatInfo.Release()
 	sl := &com.IOPCServerList2{IUnknown: iCatInfo}
 	iEnum, err := sl.EnumClassesOfCategories(cids, nil)
 	if err != nil {
-		return nil, NewOPCWrapperError("enum classes of categories", err)
+		return nil, NewOPCWrapperError("enum classes of categories with IOPCServerListV2", err)
 	}
 	defer iEnum.Release()
 	var result []*ServerInfo
@@ -191,7 +230,41 @@ func getServersFromOpcServerList(node string) ([]*ServerInfo, error) {
 		}
 		server, err := getServer(sl, &classID)
 		if err != nil {
-			return nil, NewOPCWrapperError("getServer", err)
+			return nil, NewOPCWrapperError("IOPCServerListV2 getServer", err)
+		}
+		result = append(result, server)
+	}
+	return result, nil
+}
+
+func getServersFromOpcServerListV1(node string) ([]*ServerInfo, error) {
+	location := com.CLSCTX_LOCAL_SERVER
+	if !com.IsLocal(node) {
+		location = com.CLSCTX_REMOTE_SERVER
+	}
+	iCatInfo, err := com.MakeCOMObjectEx(node, location, &com.CLSID_OpcServerList, &com.IID_IOPCServerList)
+	if err != nil {
+		return nil, NewOPCWrapperError("make com object IOPCServerListV1", err)
+	}
+	cids := []windows.GUID{IID_CATID_OPCDAServer10, IID_CATID_OPCDAServer20}
+	defer iCatInfo.Release()
+	sl := &com.IOPCServerList{IUnknown: iCatInfo}
+	iEnum, err := sl.EnumClassesOfCategories(cids, nil)
+	if err != nil {
+		return nil, NewOPCWrapperError("enum classes of categories with IOPCServerListV1", err)
+	}
+	defer iEnum.Release()
+	var result []*ServerInfo
+	for {
+		var classID windows.GUID
+		var actual uint32
+		err = iEnum.Next(1, &classID, &actual)
+		if err != nil {
+			break
+		}
+		server, err := getServerV1(sl, &classID)
+		if err != nil {
+			return nil, NewOPCWrapperError("IOPCServerListV1 getServer", err)
 		}
 		result = append(result, server)
 	}
@@ -255,6 +328,24 @@ func getServer(sl *com.IOPCServerList2, classID *windows.GUID) (*ServerInfo, err
 		ClsStr:       clsStr,
 		ClsID:        classID,
 		VerIndProgID: windows.UTF16PtrToString(VerIndProgID),
+	}, nil
+}
+
+func getServerV1(sl *com.IOPCServerList, classID *windows.GUID) (*ServerInfo, error) {
+	progID, userType, err := sl.GetClassDetails(classID)
+	if err != nil {
+		return nil, fmt.Errorf("FAILED to get prog ID from class ID: %w", err)
+	}
+	defer func() {
+		com.CoTaskMemFree(unsafe.Pointer(progID))
+		com.CoTaskMemFree(unsafe.Pointer(userType))
+	}()
+	clsStr := classID.String()
+	return &ServerInfo{
+		ProgID:       windows.UTF16PtrToString(progID),
+		ClsStr:       clsStr,
+		ClsID:        classID,
+		VerIndProgID: "",
 	}, nil
 }
 
