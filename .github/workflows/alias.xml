@@ -77,7 +77,15 @@
             <Scaling enabled="0" type="0" />
             <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
         </PSTAlias>
-        <PSTAlias name="Int4" itemPath="" type="3" dataType="3">
+        <PSTAlias name="AsyncInt4" itemPath="" type="3" dataType="3">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="SyncInt4" itemPath="" type="3" dataType="3">
+            <Scaling enabled="0" type="0" />
+            <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+        </PSTAlias>
+        <PSTAlias name="PropInt4" itemPath="" type="3" dataType="3">
             <Scaling enabled="0" type="0" />
             <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
         </PSTAlias>

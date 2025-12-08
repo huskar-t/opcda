@@ -178,7 +178,7 @@ func TestOPCGroup_Items(t *testing.T) {
 	assert.NotNil(t, items)
 	items2 := group.OPCItems()
 	assert.Equal(t, items, items2)
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestPropertyItem)
 	assert.NoError(t, err)
 	err = item.SetIsActive(true)
 	assert.NoError(t, err)
@@ -202,7 +202,7 @@ func TestOPCGroup_SyncRead(t *testing.T) {
 	assert.NotNil(t, items)
 	items2 := group.OPCItems()
 	assert.Equal(t, items, items2)
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestSyncWriteItem)
 	assert.NoError(t, err)
 	match := false
 	err = item.SetIsActive(true)
@@ -272,7 +272,7 @@ func TestOPCGroup_SyncWrite(t *testing.T) {
 
 	items := group.items
 	assert.NotNil(t, items)
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestSyncWriteItem)
 	assert.NoError(t, err)
 	ch := make(chan *DataChangeCallBackData, 1)
 	err = group.RegisterDataChange(ch)
@@ -399,7 +399,7 @@ func TestOPCGroup_AsyncWrite(t *testing.T) {
 	err = group.RegisterWriteComplete(ch)
 	assert.NoError(t, err)
 	items := group.items
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestAsyncWriteItem)
 	assert.NoError(t, err)
 	time.Sleep(time.Second)
 	cancelID, errs, err := group.AsyncWrite([]uint32{item.serverHandle}, []interface{}{int32(14)}, 100)
@@ -487,7 +487,7 @@ func TestOPCGroup_AsyncCancel(t *testing.T) {
 	err = group.RegisterCancelComplete(ch)
 	assert.NoError(t, err)
 	items := group.items
-	item, err := items.AddItem(TestWriteItem)
+	item, err := items.AddItem(TestAsyncWriteItem)
 	assert.NoError(t, err)
 	time.Sleep(time.Second)
 	for i := 0; i < 300; i++ {

@@ -19,7 +19,9 @@ const TestHost = "localhost"
 const TestServiceName = "MatrikonOPC Server for Simulation and Testing"
 const TestBoolItem = ".Boolean"
 const TestFloatItem = ".Real4"
-const TestWriteItem = ".Int4"
+const TestAsyncWriteItem = ".AsyncInt4"
+const TestSyncWriteItem = ".SyncInt4"
+const TestPropertyItem = ".PropInt4"
 const TestWriteErrorItem = "Write Error.Int4"
 const TestReadErrorItem = "Write Only.Int4"
 
@@ -299,7 +301,7 @@ func TestOpcServer_QueryAvailableProperties(t *testing.T) {
 		err = server.Disconnect()
 		assert.NoError(t, err)
 	}()
-	ppPropertyIDs, ppDescriptions, ppvtDataTypes, err := server.QueryAvailableProperties(TestWriteItem)
+	ppPropertyIDs, ppDescriptions, ppvtDataTypes, err := server.QueryAvailableProperties(TestPropertyItem)
 	assert.NoError(t, err)
 	assert.Greater(t, len(ppPropertyIDs), 0)
 	assert.Greater(t, len(ppDescriptions), 0)
@@ -315,13 +317,13 @@ func TestOpcServer_GetItemProperties(t *testing.T) {
 		err = server.Disconnect()
 		assert.NoError(t, err)
 	}()
-	ppPropertyIDs, ppDescriptions, ppvtDataTypes, err := server.QueryAvailableProperties(TestWriteItem)
+	ppPropertyIDs, ppDescriptions, ppvtDataTypes, err := server.QueryAvailableProperties(TestPropertyItem)
 	assert.NoError(t, err)
 	assert.Greater(t, len(ppPropertyIDs), 0)
 	assert.Greater(t, len(ppDescriptions), 0)
 	assert.Greater(t, len(ppvtDataTypes), 0)
 	t.Log(ppPropertyIDs, ppDescriptions, ppvtDataTypes)
-	properties, errors, err := server.GetItemProperties(TestWriteItem, ppPropertyIDs)
+	properties, errors, err := server.GetItemProperties(TestPropertyItem, ppPropertyIDs)
 	assert.NoError(t, err)
 	assert.Greater(t, len(properties), 0)
 	assert.Greater(t, len(errors), 0)

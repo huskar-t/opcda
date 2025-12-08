@@ -85,7 +85,7 @@ func TestOPCItems_AddItems(t *testing.T) {
 	boolItem, err := items.AddItem(TestBoolItem)
 	assert.NoError(t, err)
 	assert.NotNil(t, boolItem)
-	itemList, errors, err := items.AddItems([]string{TestFloatItem, TestWriteItem})
+	itemList, errors, err := items.AddItems([]string{TestFloatItem, TestPropertyItem})
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(itemList))
 	assert.Equal(t, 2, len(errors))
@@ -111,7 +111,7 @@ func TestOPCItems_AddItems(t *testing.T) {
 	item1, err = items.ItemByName(TestFloatItem)
 	assert.NoError(t, err)
 	assert.Equal(t, itemList[0], item1)
-	item2, err = items.ItemByName(TestWriteItem)
+	item2, err = items.ItemByName(TestPropertyItem)
 	assert.NoError(t, err)
 	assert.Equal(t, itemList[1], item2)
 	item3, err = items.ItemByName("test")
@@ -149,7 +149,7 @@ func TestOPCItems_Validate(t *testing.T) {
 	assert.NotNil(t, group)
 	items := group.OPCItems()
 
-	errs, err := items.Validate([]string{TestBoolItem, TestFloatItem, TestWriteItem}, nil, nil)
+	errs, err := items.Validate([]string{TestBoolItem, TestFloatItem, TestPropertyItem}, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(errs))
 	for _, e := range errs {
@@ -161,13 +161,13 @@ func TestOPCItems_Validate(t *testing.T) {
 	for _, e := range errs {
 		assert.Error(t, e)
 	}
-	errs, err = items.Validate([]string{"xxx", TestFloatItem, TestWriteItem}, nil, nil)
+	errs, err = items.Validate([]string{"xxx", TestFloatItem, TestPropertyItem}, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(errs))
 	assert.Error(t, errs[0])
 	assert.NoError(t, errs[1])
 	assert.NoError(t, errs[2])
-	errs, err = items.Validate([]string{TestFloatItem, TestFloatItem, TestWriteItem}, nil, nil)
+	errs, err = items.Validate([]string{TestFloatItem, TestFloatItem, TestPropertyItem}, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(errs))
 	for _, e := range errs {
@@ -189,7 +189,7 @@ func TestOPCItems_SetActive(t *testing.T) {
 	assert.NotNil(t, group)
 	items := group.OPCItems()
 
-	opcItems, errs, err := items.AddItems([]string{TestBoolItem, TestFloatItem, TestWriteItem})
+	opcItems, errs, err := items.AddItems([]string{TestBoolItem, TestFloatItem, TestPropertyItem})
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(opcItems))
 	assert.Equal(t, 3, len(errs))
@@ -220,7 +220,7 @@ func TestOPCItems_SetClientHandles(t *testing.T) {
 	assert.NotNil(t, group)
 	items := group.OPCItems()
 
-	opcItems, errs, err := items.AddItems([]string{TestBoolItem, TestFloatItem, TestWriteItem})
+	opcItems, errs, err := items.AddItems([]string{TestBoolItem, TestFloatItem, TestPropertyItem})
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(opcItems))
 	assert.Equal(t, 3, len(errs))
@@ -251,7 +251,7 @@ func TestOPCItems_SetDataTypes(t *testing.T) {
 	assert.NotNil(t, group)
 	items := group.OPCItems()
 
-	opcItems, errs, err := items.AddItems([]string{TestBoolItem, TestFloatItem, TestWriteItem})
+	opcItems, errs, err := items.AddItems([]string{TestBoolItem, TestFloatItem, TestPropertyItem})
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(opcItems))
 	assert.Equal(t, 3, len(errs))
