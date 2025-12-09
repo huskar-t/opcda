@@ -217,11 +217,30 @@ func IsLocal(host string) bool {
 
 // Initialize initialize COM with COINIT_MULTITHREADED
 func Initialize() error {
+	config := DefaultInitConfig()
+	return InitializeWithConfig(config)
+}
+
+type InitConfig struct {
+	AuthLevel    uint32
+	ImpLevel     uint32
+	Capabilities uint32
+}
+
+func DefaultInitConfig() *InitConfig {
+	return &InitConfig{
+		AuthLevel:    RPC_C_AUTHN_LEVEL_NONE,
+		ImpLevel:     RPC_C_IMP_LEVEL_IMPERSONATE,
+		Capabilities: EOAC_NONE,
+	}
+}
+
+func InitializeWithConfig(config *InitConfig) error {
 	err := windows.CoInitializeEx(0, windows.COINIT_MULTITHREADED)
 	if err != nil {
 		return fmt.Errorf("call CoInitializeEx error: %s", err)
 	}
-	err = CoInitializeSecurity(RPC_C_AUTHN_LEVEL_NONE, RPC_C_IMP_LEVEL_IMPERSONATE, EOAC_NONE)
+	err = CoInitializeSecurity(config.AuthLevel, config.ImpLevel, config.Capabilities)
 	if err != nil {
 		Uninitialize()
 		return fmt.Errorf("call CoInitializeSecurity error: %s", err)
